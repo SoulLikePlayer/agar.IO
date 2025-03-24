@@ -10,15 +10,15 @@ public class GameWorld {
     private List<GameEntity> entities;
     private Player player;
 
-    public GameWorld() {
+    public GameWorld(String pseudo) {
         entities = new ArrayList<>();
-        player = new Player(500, 500, 100);
-        generatePellets(50);
+        player = new Player(1000, 1000, 100, pseudo);
+        generatePellets(200);
     }
 
     private void generatePellets(int count) {
         for (int i = 0; i < count; i++) {
-            entities.add(new Pellet(Math.random() * 1000, Math.random() * 1000));
+            entities.add(new Pellet(Math.random() * 2000, Math.random() * 2000));
         }
     }
 

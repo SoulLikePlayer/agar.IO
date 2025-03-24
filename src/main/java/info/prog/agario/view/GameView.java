@@ -11,9 +11,9 @@ public class GameView {
     private GameWorld world;
     private GameController controller;
 
-    public GameView() {
+    public GameView(String pseudo) {
         root = new Pane();
-        world = new GameWorld();
+        world = new GameWorld(pseudo);
         controller = new GameController(world, root);
         scene = new Scene(root, 800, 600);
         controller.initialize();

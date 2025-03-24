@@ -15,5 +15,8 @@ public class Camera {
     public void update() {
         root.setTranslateX(-player.getShape().getCenterX() + 400);
         root.setTranslateY(-player.getShape().getCenterY() + 300);
+        double zoom = 1.0 / Math.sqrt(player.getMass() / 100);
+        root.setScaleX(zoom);
+        root.setScaleY(zoom);
     }
 }

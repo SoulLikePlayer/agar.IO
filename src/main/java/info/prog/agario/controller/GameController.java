@@ -8,6 +8,8 @@ import info.prog.agario.model.entity.Player;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
 
+import java.util.Iterator;
+
 public class GameController {
     private GameWorld world;
     private Pane root;
@@ -39,13 +41,23 @@ public class GameController {
         Player player = world.getPlayer();
         double dx = event.getX() - player.getShape().getCenterX();
         double dy = event.getY() - player.getShape().getCenterY();
-        double speed = 2.0 / Math.sqrt(player.getShape().getRadius());
+        double speed = Math.max(0.5, 5.0 / Math.sqrt(player.getMass()));
 
-        player.getShape().setCenterX(player.getShape().getCenterX() + dx * speed);
-        player.getShape().setCenterY(player.getShape().getCenterY() + dy * speed);
+        player.getShape().setCenterX(player.getShape().getCenterX() + dx * speed * 0.01);
+        player.getShape().setCenterY(player.getShape().getCenterY() + dy * speed * 0.01);
     }
 
     private void update() {
         camera.update();
+
+        Iterator<GameEntity> iterator = world.getEntities().iterator();
+        while (iterator.hasNext()) {
+            GameEntity entity = iterator.next();
+            if (world.getPlayer().getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                world.getPlayer().absorb(entity);
+                root.getChildren().remove(entity.getShape());
+                iterator.remove();
+            }
+        }
     }
 }
