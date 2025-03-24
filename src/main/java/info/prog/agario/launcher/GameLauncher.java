@@ -7,8 +7,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import info.prog.agario.view.GameView;
+import java.util.Random;
 
 public class GameLauncher extends Application {
+    private static final String[] RANDOM_PSEUDOS = {
+            "Xx_DarkSasukeDu89_xX", "SeigneurDu98", "Pikachu_Sombre",
+            "Naruto_LeBg", "JeanMichel_Gamer", "ProGamer666",
+            "BigChungus2000", "MangeurDeQuiches", "MasterChief_PasContent"
+    };
+
     @Override
     public void start(Stage primaryStage) {
         VBox layout = new VBox(10);
@@ -29,7 +36,7 @@ public class GameLauncher extends Application {
 
     private void launchGame(Stage stage, String pseudo, boolean online) {
         if (pseudo.isEmpty()) {
-            pseudo = "Joueur";
+            pseudo = RANDOM_PSEUDOS[new Random().nextInt(RANDOM_PSEUDOS.length)];
         }
         if (online) {
             System.out.println("Connexion au mode en ligne... (fonctionnalité non encore implémentée)");
