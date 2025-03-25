@@ -98,11 +98,10 @@ public class GameController {
 
     private void update() {
         camera.update();
-        boolean absorbedSomething = false;
-
         Iterator<GameEntity> iterator = world.getEntities().iterator();
         while (iterator.hasNext()) {
             GameEntity entity = iterator.next();
+            boolean absorbed = false;
 
             for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
@@ -110,16 +109,15 @@ public class GameController {
                         cell.absorb(entity);
                         root.getChildren().remove(entity.getShape());
                         iterator.remove();
-                        absorbedSomething = true;
+                        absorbed = true;
                         break;
                     }
                 }
             }
-        }
 
-        if (absorbedSomething) {
-            System.out.println("Absorption détectée ! Mise à jour du zoom.");
-            camera.update();
+            if (absorbed) break;
         }
     }
+
+
 }
