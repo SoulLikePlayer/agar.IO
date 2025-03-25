@@ -59,16 +59,11 @@ public class GameController {
 
     private void handleKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.SPACE) {
-<<<<<<< HEAD
             Player player = world.getPlayer();
-            player.divide(); // La division est maintenant propre
+            player.divide();
 
             List<Cell> updatedCells = player.getPlayerGroup().getCells();
             for (Cell cell : updatedCells) {
-=======
-            world.getPlayer().divide();
-            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
->>>>>>> 655ae67029c6bf8dec3dd2140d1c4bdd63d3b49c
                 if (!root.getChildren().contains(cell.getShape())) {
                     root.getChildren().add(cell.getShape());
                     cell.getShape().toFront();
@@ -77,12 +72,6 @@ public class GameController {
         }
     }
 
-<<<<<<< HEAD
-
-
-
-=======
->>>>>>> 655ae67029c6bf8dec3dd2140d1c4bdd63d3b49c
     private void handleMouseMovement(MouseEvent event) {
         mouseX = event.getX();
         mouseY = event.getY();
