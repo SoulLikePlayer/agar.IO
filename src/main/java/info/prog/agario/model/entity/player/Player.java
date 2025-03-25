@@ -36,4 +36,8 @@ public class Player {
     public Text getPseudoText() {
         return pseudoText;
     }
+
+    public void setPosition(double x, double y){
+        for(Cell this.playerGroup)
+    }
 }

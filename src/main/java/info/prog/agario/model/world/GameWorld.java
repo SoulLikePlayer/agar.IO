@@ -15,9 +15,11 @@ public class GameWorld {
     public GameWorld(String pseudo) {
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(300, 400, 10, pseudo);
+        player = new Player(1000, 1000, 10, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         generatePellets(200);
+        entities.add(player);
+        quadTree.insert(player);
     }
 
     private void generatePellets(int count) {
@@ -38,5 +40,21 @@ public class GameWorld {
 
     public QuadTree getQuadTree() {
         return quadTree;
+    }
+
+    public synchronized void updatePlayerPosition(double x, double y) {
+        player.setPosition(x, y);
+        quadTree.update(player);
+    }
+
+    public synchronized String getGameState() {
+        StringBuilder gameState = new StringBuilder();
+        gameState.append("Player: ").append(player.getPseudoText()).append("\n");
+        gameState.append("Entities: ").append(entities.size()).append("\n");
+
+        for (GameEntity entity : entities) {
+            gameState.append(entity.getPosition()).append("\n");
+        }
+        return gameState.toString();
     }
 }
