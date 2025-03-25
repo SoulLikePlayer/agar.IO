@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
 import java.util.Iterator;
+import java.util.List;
 
 public class GameController {
     private GameWorld world;
@@ -58,8 +59,11 @@ public class GameController {
 
     private void handleKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.SPACE) {
-            world.getPlayer().divide();
-            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+            Player player = world.getPlayer();
+            player.divide();
+
+            List<Cell> updatedCells = player.getPlayerGroup().getCells();
+            for (Cell cell : updatedCells) {
                 if (!root.getChildren().contains(cell.getShape())) {
                     root.getChildren().add(cell.getShape());
                     cell.getShape().toFront();
@@ -74,6 +78,8 @@ public class GameController {
     }
 
     private void updatePlayerDirection() {
+        camera.update();
+
         Player player = world.getPlayer();
         PlayerGroup playerGroup = player.getPlayerGroup();
 
@@ -95,17 +101,51 @@ public class GameController {
 
     private void update() {
         camera.update();
-        Iterator<GameEntity> iterator = world.getEntities().iterator();
-        while (iterator.hasNext()) {
-            GameEntity entity = iterator.next();
-            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
-                if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                    cell.absorb(entity);
-                    root.getChildren().remove(entity.getShape());
-                    iterator.remove();
+
+        Player player = world.getPlayer();
+        PlayerGroup playerGroup = player.getPlayerGroup();
+        List<Cell> cells = playerGroup.getCells();
+
+        for (int i = 0; i < cells.size(); i++) {
+            for (int j = i + 1; j < cells.size(); j++) {
+                Cell cell1 = cells.get(i);
+                Cell cell2 = cells.get(j);
+
+                if (cell1.canMerge(cell2) && cell1.getShape().getBoundsInParent().intersects(cell2.getShape().getBoundsInParent())) {
+                    cell1.merge(cell2);
                     break;
                 }
             }
+        }
+
+        boolean absorbedSomething = false;
+
+        Iterator<GameEntity> iterator = world.getEntities().iterator();
+        while (iterator.hasNext()) {
+            GameEntity entity = iterator.next();
+
+            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+                if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                    if (entity instanceof Cell || entity instanceof Pellet || entity instanceof SpecialPellet) {
+
+                        if(!(entity instanceof ExplosionPellet)){
+                            cell.absorb(entity);
+                            root.getChildren().remove(entity.getShape());
+                            iterator.remove();
+                            absorbedSomething = true;
+                        }else{
+                            cell.contactExplosion(entity, root);
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (absorbedSomething) {
+            System.out.println("Absorption détectée ! Mise à jour du zoom.");
+            camera.update();
         }
     }
 }
