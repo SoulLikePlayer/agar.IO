@@ -1,6 +1,7 @@
 package info.prog.agario.controller;
 
 import info.prog.agario.model.entity.*;
+import info.prog.agario.model.entity.ai.Enemy;
 import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
@@ -12,6 +13,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
+
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -33,7 +36,11 @@ public class GameController {
         for (GameEntity entity : world.getEntities()) {
             root.getChildren().add(entity.getShape());
         }
-
+        for (Enemy e : world.getEnemies()) {
+            for(Cell cell : e.getEnemyGroup().getCells()) {
+                root.getChildren().add(cell.getShape());
+            }
+        }
         for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
             root.getChildren().add(cell.getShape());
         }
@@ -106,19 +113,54 @@ public class GameController {
 
             for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                    if (entity instanceof Cell || entity instanceof Pellet) {
+                    System.out.println("on rentre dans qqch");
+                    if (entity instanceof Pellet) {
+                        System.out.println("c'est un pellet");
                         cell.absorb(entity);
                         root.getChildren().remove(entity.getShape());
                         iterator.remove();
                         absorbedSomething = true;
                         break;
+                    } else if (entity instanceof Cell || entity instanceof Enemy) {
+                        System.out.println("c'est qqn");
+                        if(cell.getMass() >= ((Cell) entity).getMass()*1.33){
+                            System.out.println("on le mange");
+                            cell.absorb(entity);
+                            root.getChildren().remove(entity.getShape());
+                            iterator.remove();
+                            absorbedSomething = true;
+                            break;
+                        } else if(((Cell) entity).getMass() >= cell.getMass()*1.33) {
+                            System.out.println("il nous mange");
+                            ((Cell) entity).absorb(cell);
+                            root.getChildren().remove(cell.getShape());
+                            iterator.remove();
+                            absorbedSomething = true;
+                            break;
+                        }
+                        System.out.println("on se respecte");
+                    }
+                }
+            }
+            for (Enemy e : world.getEnemies()) {
+                for(Cell cell : e.getEnemyGroup().getCells()){
+                    if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                        System.out.println("on rentre dans qqch");
+                        if (entity instanceof Pellet) {
+                            System.out.println("c'est un pellet");
+                            cell.absorb(entity);
+                            root.getChildren().remove(entity.getShape());
+                            iterator.remove();
+                            absorbedSomething = true;
+                            break;
+                        }
                     }
                 }
             }
         }
 
         if (absorbedSomething) {
-            System.out.println("Absorption détectée ! Mise à jour du zoom.");
+            //System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
         }
     }

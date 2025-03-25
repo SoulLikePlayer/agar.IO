@@ -2,6 +2,7 @@ package info.prog.agario.model.entity.ai;
 
 import info.prog.agario.model.entity.GameEntity;
 import info.prog.agario.model.entity.player.Cell;
+import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.shape.Circle;
@@ -13,11 +14,11 @@ import java.util.Timer;
 import java.util.concurrent.TimeUnit;
 
 public class RandomMovement implements Strategy{
-    private GameEntity entity;
+    private PlayerGroup entity;
     private Random r = new Random();
 
     private int[] lastRandom = new int[2];
-    public RandomMovement(GameEntity entity){
+    public RandomMovement(PlayerGroup entity){
         this.entity = entity;
         this.lastRandom[0] = 0;
         this.lastRandom[1] = 0;
@@ -31,14 +32,20 @@ public class RandomMovement implements Strategy{
             lastRandom[0] = Math.max(-10, Math.min(10, lastRandom[0] + deltaX));
             lastRandom[1] = Math.max(-10, Math.min(10, lastRandom[1] + deltaY));
 
-            double speed = 5.0;
+            double speed = 3.0;
             double distance = Math.sqrt(lastRandom[0] * lastRandom[0] + lastRandom[1] * lastRandom[1]);
             double factor = distance > 0 ? speed / distance : 1;
 
             entity.move(lastRandom[0] * factor, lastRandom[1] * factor);
+            //double newX = entity.getShape().getCenterX();
+            //double newY = entity.getShape().getCenterY();
+            //entity.setPosition(newX, newY);
 
-            System.out.println("Co X : " + entity.getShape().getCenterX() + " Co Y : " + entity.getShape().getCenterY());
+            //System.out.println("Co X : " + newX + " Co Y : " + newY);
+            //System.out.println("Co X : " + entity.getX() + " Co Y : " + entity.getY());
+            //System.out.println("co du playergroup : " + entity.getCells().get(0).getX() + " " + entity.getCells().get(0).getY());
         }));
+
         tl.setCycleCount(Timeline.INDEFINITE);
         tl.play();
     }

@@ -1,6 +1,8 @@
 package info.prog.agario.model.entity.player;
 
 import info.prog.agario.model.entity.GameEntity;
+import info.prog.agario.model.entity.Pellet;
+import info.prog.agario.model.entity.ai.Enemy;
 import javafx.scene.paint.Color;
 import info.prog.agario.utils.AnimationUtils;
 
@@ -42,6 +44,7 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.color = color;
         this.shape.setFill(color);
         this.speedMultiplier = 3.0;
+        this.shape.radiusProperty().bind(this.radius);
         System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius);
     }
 
@@ -51,7 +54,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     public void setMass(double mass) {
         this.mass = mass;
-        this.radius = (10 * Math.sqrt(mass));
+        this.radius.set(10 * Math.sqrt(mass));
     }
 
     public void move(double dx, double dy) {
@@ -61,12 +64,19 @@ public class Cell extends GameEntity implements PlayerComponent {
         if (speedMultiplier > 1) {
             speedMultiplier *= 0.95;
         }
+        //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
     }
 
     public void absorb(GameEntity entity) {
-        this.mass += 10;
-        this.radius = (10 * Math.sqrt(mass));
+        if(entity instanceof Pellet){
+            this.mass += 10;
+        } else {
+            this.mass += ((Cell) entity).getMass();
+        }
+        this.mass += entity.getRadius();
+        this.radius.set(10 * Math.sqrt(mass));
         AnimationUtils.playGrowAnimation(this.shape);
+        //System.out.println("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
     }
 
     public void setSpeedMultiplier(double multiplier) {

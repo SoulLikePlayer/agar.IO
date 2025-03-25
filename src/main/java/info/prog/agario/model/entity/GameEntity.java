@@ -6,13 +6,13 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.shape.Circle;
 
 public abstract class GameEntity {
-    protected double x, y, radius;
+    protected DoubleProperty x, y, radius;
     protected Circle shape;
 
     public GameEntity(double x, double y, double radius) {
-        this.x = x;
-        this.y = y;
-        this.radius = radius;
+        this.x = new SimpleDoubleProperty(x);
+        this.y = new SimpleDoubleProperty(y);
+        this.radius = new SimpleDoubleProperty(radius);
         this.shape = new Circle(x, y, radius);
     }
 
@@ -21,25 +21,33 @@ public abstract class GameEntity {
     }
 
     public double getX() {
-        return x;
+        return x.get();
     }
 
     public double getY() {
-        return y;
+        return y.get();
     }
 
     public void move(double dX, double dY){
-        this.x += dX;
-        this.y += dY;
-        this.shape.setCenterX(this.x);
-        this.shape.setCenterY(this.y);
+        this.x.set(this.x.get() + dX);
+        this.y.set(this.y.get() + dY);
+        this.shape.setCenterX(this.x.get());
+        this.shape.setCenterY(this.y.get());
+        //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    }
+
+    public void setPosition(double newX, double newY){
+        this.x.setValue(newX);
+        this.y.setValue(newY);
+        this.shape.setCenterX(newX);
+        this.shape.setCenterY(newY);
     }
 
     public double getRadius() {
-        return this.radius;
+        return radius.get();
     }
 
     public Boundary getBounds() {
-        return new Boundary(this.x - this.radius, this.y - this.radius,this.radius * 2, this.radius * 2);
+        return new Boundary(x.get() - radius.get(), y.get() - radius.get(),radius.get() * 2, radius.get() * 2);
     }
 }
