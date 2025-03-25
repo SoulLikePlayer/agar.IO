@@ -42,6 +42,7 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.color = color;
         this.shape.setFill(color);
         this.speedMultiplier = 3.0;
+        this.shape.radiusProperty().bind(this.radius);
         System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
     }
 

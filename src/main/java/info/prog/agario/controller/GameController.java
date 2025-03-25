@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
 import java.util.Iterator;
+import java.util.List;
 
 public class GameController {
     private GameWorld world;
@@ -74,6 +75,8 @@ public class GameController {
     }
 
     private void updatePlayerDirection() {
+        camera.update();
+
         Player player = world.getPlayer();
         PlayerGroup playerGroup = player.getPlayerGroup();
 
@@ -95,17 +98,31 @@ public class GameController {
 
     private void update() {
         camera.update();
+        boolean absorbedSomething = false;
+
         Iterator<GameEntity> iterator = world.getEntities().iterator();
         while (iterator.hasNext()) {
             GameEntity entity = iterator.next();
+
             for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                    cell.absorb(entity);
-                    root.getChildren().remove(entity.getShape());
-                    iterator.remove();
-                    break;
+                    if (entity instanceof Cell || entity instanceof Pellet) {
+                        cell.absorb(entity);  // Absorption de l'entité
+                        root.getChildren().remove(entity.getShape());
+                        iterator.remove();
+                        absorbedSomething = true;
+                        break;
+                    }
                 }
             }
         }
+
+        if (absorbedSomething) {
+            System.out.println("Absorption détectée ! Mise à jour du zoom.");
+            camera.update();
+        }
     }
+
+
+
 }
