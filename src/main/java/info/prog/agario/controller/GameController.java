@@ -20,6 +20,7 @@ public class GameController {
     private Camera camera;
     private long lastUpdate = 0;
     private static final long UPDATE_INTERVAL = 16_000_000;
+    private double mouseX, mouseY;
 
     public GameController(GameWorld world, Pane root) {
         this.world = world;
@@ -40,14 +41,13 @@ public class GameController {
         root.setOnKeyPressed(this::handleKeyPress);
         root.setFocusTraversable(true);
         root.requestFocus();
-
-
         root.setOnMouseMoved(this::handleMouseMovement);
 
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if (now - lastUpdate >= UPDATE_INTERVAL) {
+                    updatePlayerDirection();
                     update();
                     lastUpdate = now;
                 }
@@ -59,44 +59,45 @@ public class GameController {
     private void handleKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.SPACE) {
             world.getPlayer().divide();
-
             for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
                 if (!root.getChildren().contains(cell.getShape())) {
                     root.getChildren().add(cell.getShape());
                     cell.getShape().toFront();
-                    System.out.println("Nouvelle cellule ajoutée avec masse " + cell.getMass());
                 }
             }
         }
     }
 
-
-
     private void handleMouseMovement(MouseEvent event) {
+        mouseX = event.getX();
+        mouseY = event.getY();
+    }
+
+    private void updatePlayerDirection() {
         Player player = world.getPlayer();
         PlayerGroup playerGroup = player.getPlayerGroup();
 
         for (PlayerComponent component : playerGroup.getComponents()) {
             if (component instanceof Cell) {
                 Cell cell = (Cell) component;
-                double dx = event.getX() - cell.getShape().getCenterX();
-                double dy = event.getY() - cell.getShape().getCenterY();
-                double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
+                double dx = mouseX - cell.getShape().getCenterX();
+                double dy = mouseY - cell.getShape().getCenterY();
+                double distance = Math.sqrt(dx * dx + dy * dy);
 
-                cell.setVelocity(dx * speed * 0.005, dy * speed * 0.005);
-                cell.move(dx * speed * 0.005, dy * speed * 0.005);
+                if (distance > 1) {
+                    double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
+                    cell.setVelocity(dx / distance * speed, dy / distance * speed);
+                    cell.move(dx / distance * speed, dy / distance * speed);
+                }
             }
         }
     }
 
-
     private void update() {
         camera.update();
-
         Iterator<GameEntity> iterator = world.getEntities().iterator();
         while (iterator.hasNext()) {
             GameEntity entity = iterator.next();
-
             for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     cell.absorb(entity);
