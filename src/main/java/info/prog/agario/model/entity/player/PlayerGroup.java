@@ -29,19 +29,26 @@ public class PlayerGroup implements PlayerComponent {
 
     @Override
     public void divide() {
-        List<PlayerComponent> componentsCopy = new ArrayList<>(components);
-        for (PlayerComponent component : componentsCopy) {
+        for (PlayerComponent component : new ArrayList<>(components)) {
             component.divide();
         }
-
     }
 
     @Override
     public void merge(PlayerComponent other) {
         if (other instanceof PlayerGroup) {
-            components.addAll(((PlayerGroup) other).components);
-        } else {
-            components.add(other);
+            for (PlayerComponent component : ((PlayerGroup) other).components) {
+                merge(component);
+            }
+        } else if (other instanceof Cell) {
+            List<Cell> cells = getCells();
+
+            for (Cell cell : cells) {
+                if (cell != other && cell.canMerge((Cell) other)) {
+                    cell.merge((Cell) other);
+                    break;
+                }
+            }
         }
     }
 
@@ -52,9 +59,7 @@ public class PlayerGroup implements PlayerComponent {
     public List<Cell> getCells() {
         List<Cell> cells = new ArrayList<>();
         for (PlayerComponent component : components) {
-            if (component instanceof Cell) {
-                cells.add((Cell) component);
-            }
+            cells.addAll(component.getCells());
         }
         return cells;
     }

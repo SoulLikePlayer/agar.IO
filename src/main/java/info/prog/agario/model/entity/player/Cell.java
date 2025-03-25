@@ -1,10 +1,14 @@
 package info.prog.agario.model.entity.player;
 
 import info.prog.agario.model.entity.GameEntity;
+import javafx.scene.layout.Pane;
 import info.prog.agario.model.entity.Pellet;
 import info.prog.agario.model.entity.ai.Enemy;
 import javafx.scene.paint.Color;
 import info.prog.agario.utils.AnimationUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Cell extends GameEntity implements PlayerComponent {
     private double mass;
@@ -14,6 +18,13 @@ public class Cell extends GameEntity implements PlayerComponent {
     private double velocityY = 0;
     private PlayerGroup parentGroup;
 
+    private static final int MERGE_TIME = 5000;
+    private static final int BOOST_DURATION = 1000;
+
+    private static final int BOOST_MULTIPLIER = 3;
+    private boolean isBoosted = false;
+    private long boostStartTime;
+
     public void setParentGroup(PlayerGroup parentGroup) {
         this.parentGroup = parentGroup;
     }
@@ -22,14 +33,21 @@ public class Cell extends GameEntity implements PlayerComponent {
         return parentGroup;
     }
 
+    private long lastDivisionTime;
+
+
     public void setVelocity(double vx, double vy) {
         this.velocityX = vx;
         this.velocityY = vy;
     }
 
     public void move() {
-        shape.setCenterX(shape.getCenterX() + velocityX);
-        shape.setCenterY(shape.getCenterY() + velocityY);
+        Double newX = shape.getCenterX() + velocityX;
+        Double newY = shape.getCenterY() + velocityY;
+        shape.setCenterX(newX);
+        shape.setCenterY(newY);
+        x.setValue(newX);
+        y.setValue(newY);
 
         velocityX *= 0.95;
         velocityY *= 0.95;
@@ -40,12 +58,12 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     public Cell(double x, double y, double mass, Color color) {
         super(x, y, 10 * Math.sqrt(mass));
-        this.mass = mass;
+        this.setMass(mass);
         this.color = color;
         this.shape.setFill(color);
         this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
-        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius);
+        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
     }
 
     public double getMass() {
@@ -55,26 +73,30 @@ public class Cell extends GameEntity implements PlayerComponent {
     public void setMass(double mass) {
         this.mass = mass;
         this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
     }
 
     public void move(double dx, double dy) {
-        shape.setCenterX(shape.getCenterX() + dx * speedMultiplier);
-        shape.setCenterY(shape.getCenterY() + dy * speedMultiplier);
-
-        if (speedMultiplier > 1) {
-            speedMultiplier *= 0.95;
+        long currentTime = System.currentTimeMillis();
+        if (isBoosted && (currentTime - boostStartTime >= BOOST_DURATION)) {
+            isBoosted = false;
+            updateSpeed();
+            System.out.println("Boost terminé, vitesse normale : " + speedMultiplier);
         }
         //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
+
+        double newX = shape.getCenterX() + dx * speedMultiplier;
+        double newY = shape.getCenterY() + dy * speedMultiplier;
+        shape.setCenterX(newX);
+        shape.setCenterY(newY);
+        x.setValue(newX);
+        y.setValue(newY);
     }
 
     public void absorb(GameEntity entity) {
-        if(entity instanceof Pellet){
-            this.mass += 10;
-        } else {
-            this.mass += ((Cell) entity).getMass();
-        }
-        this.mass += entity.getRadius();
+        this.mass += 10;
         this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
         //System.out.println("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
     }
@@ -85,19 +107,72 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     @Override
     public void divide() {
-        /*TODO : DIVISION CELLULAIRE :
+        if (mass < 20) return;
 
-        Votre joueur doit pouvoir se séparer en deux entités de même taille. Au moment de la séparation, une des deux
-        entités est projetée à trois fois la vitesse maximale avant de ralentir jusqu’à la vitesse normale du joueur. (Rappelons
-        que quand le joueur est constitué de plusieurs cellules, chacune a une vitesse maximale propre en fonction de sa
-        taille).
-        Une fois séparée, les cellules peuvent refusionner au bout d’un temps t, une formule de calcul possible est :
-        t = C + m/100
-        Avec C une constante de temps (par exemple 10 secondes) et m la masse de la cellule divisée.*/
+        double newMass = this.mass / 2;
+
+        this.setMass(newMass);
+
+        Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
+
+        newCell.updateSpeed();
+
+        newCell.isBoosted = true;
+        newCell.boostStartTime = System.currentTimeMillis();
+        newCell.speedMultiplier *= BOOST_MULTIPLIER;
+
+        this.lastDivisionTime = System.currentTimeMillis();
+        newCell.lastDivisionTime = this.lastDivisionTime;
+
+        if (parentGroup != null) {
+            parentGroup.addComponent(newCell);
+        }
     }
+
+    public void updateSpeed() {
+        setSpeedMultiplier(Math.max(0.5, 10.0 / Math.sqrt(this.mass)));
+    }
+
 
     @Override
     public void merge(PlayerComponent other) {
-        /*TODO : REFUSION*/
+        if (!(other instanceof Cell)) return;
+
+        Cell otherCell = (Cell) other;
+
+        if (!canMerge(otherCell)) return;
+
+        this.mass += otherCell.getMass();
+        this.radius.set(10 * Math.sqrt(mass));
+        this.updateSpeed();
+
+        if (parentGroup != null) {
+            parentGroup.removeComponent(otherCell);
+        }
+
+        if (otherCell.getShape().getParent() != null) {
+            ((Pane) otherCell.getShape().getParent()).getChildren().remove(otherCell.getShape());
+        }
+        AnimationUtils.playGrowAnimation(this.shape);
+        System.out.println("Fusion effectuée !");
+    }
+
+
+
+
+    public boolean canMerge(Cell other) {
+        long currentTime = System.currentTimeMillis();
+        long elapsedTime = currentTime - this.lastDivisionTime;
+
+        double requiredTime = MERGE_TIME + this.mass / 100.0;
+
+        return elapsedTime >= requiredTime;
+    }
+
+    @Override
+    public List<Cell> getCells() {
+        ArrayList<Cell> lst = new ArrayList();
+        lst.add(this);
+        return lst;
     }
 }
