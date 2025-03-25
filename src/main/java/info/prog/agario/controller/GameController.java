@@ -1,14 +1,17 @@
 package info.prog.agario.controller;
 
+import info.prog.agario.model.entity.*;
+import info.prog.agario.model.entity.player.Cell;
+import info.prog.agario.model.entity.player.Player;
+import info.prog.agario.model.entity.player.PlayerComponent;
+import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.AnimationTimer;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
-import info.prog.agario.model.entity.GameEntity;
-import info.prog.agario.model.entity.Player;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
-import info.prog.agario.utils.AnimationUtils;
-
 import java.util.Iterator;
 
 public class GameController {
@@ -28,8 +31,17 @@ public class GameController {
         for (GameEntity entity : world.getEntities()) {
             root.getChildren().add(entity.getShape());
         }
-        root.getChildren().add(world.getPlayer().getShape());
+
+        for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+            root.getChildren().add(cell.getShape());
+        }
+
         root.getChildren().add(world.getPlayer().getPseudoText());
+        root.setOnKeyPressed(this::handleKeyPress);
+        root.setFocusTraversable(true);
+        root.requestFocus();
+
+
         root.setOnMouseMoved(this::handleMouseMovement);
 
         AnimationTimer timer = new AnimationTimer() {
@@ -44,16 +56,39 @@ public class GameController {
         timer.start();
     }
 
+    private void handleKeyPress(KeyEvent event) {
+        if (event.getCode() == KeyCode.SPACE) {
+            world.getPlayer().divide();
+
+            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+                if (!root.getChildren().contains(cell.getShape())) {
+                    root.getChildren().add(cell.getShape());
+                    cell.getShape().toFront();
+                    System.out.println("Nouvelle cellule ajoutée avec masse " + cell.getMass());
+                }
+            }
+        }
+    }
+
+
+
     private void handleMouseMovement(MouseEvent event) {
         Player player = world.getPlayer();
-        double dx = event.getX() - player.getShape().getCenterX();
-        double dy = event.getY() - player.getShape().getCenterY();
-        double speed = Math.max(0.5, 5.0 / Math.sqrt(player.getMass()));
+        PlayerGroup playerGroup = player.getPlayerGroup();
 
-        player.getShape().setCenterX(player.getShape().getCenterX() + dx * speed * 0.005);
-        player.getShape().setCenterY(player.getShape().getCenterY() + dy * speed * 0.005);
-        player.updatePseudoPosition();
+        for (PlayerComponent component : playerGroup.getComponents()) {
+            if (component instanceof Cell) {
+                Cell cell = (Cell) component;
+                double dx = event.getX() - cell.getShape().getCenterX();
+                double dy = event.getY() - cell.getShape().getCenterY();
+                double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
+
+                cell.setVelocity(dx * speed * 0.005, dy * speed * 0.005);
+                cell.move(dx * speed * 0.005, dy * speed * 0.005);
+            }
+        }
     }
+
 
     private void update() {
         camera.update();
@@ -61,10 +96,14 @@ public class GameController {
         Iterator<GameEntity> iterator = world.getEntities().iterator();
         while (iterator.hasNext()) {
             GameEntity entity = iterator.next();
-            if (world.getPlayer().getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                world.getPlayer().absorb(entity);
-                root.getChildren().remove(entity.getShape());
-                iterator.remove();
+
+            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+                if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                    cell.absorb(entity);
+                    root.getChildren().remove(entity.getShape());
+                    iterator.remove();
+                    break;
+                }
             }
         }
     }
