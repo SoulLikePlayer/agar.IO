@@ -101,6 +101,23 @@ public class GameController {
 
     private void update() {
         camera.update();
+
+        Player player = world.getPlayer();
+        PlayerGroup playerGroup = player.getPlayerGroup();
+        List<Cell> cells = playerGroup.getCells();
+
+        for (int i = 0; i < cells.size(); i++) {
+            for (int j = i + 1; j < cells.size(); j++) {
+                Cell cell1 = cells.get(i);
+                Cell cell2 = cells.get(j);
+
+                if (cell1.canMerge(cell2) && cell1.getShape().getBoundsInParent().intersects(cell2.getShape().getBoundsInParent())) {
+                    cell1.merge(cell2);
+                    break;
+                }
+            }
+        }
+
         boolean absorbedSomething = false;
 
         Iterator<GameEntity> iterator = world.getEntities().iterator();

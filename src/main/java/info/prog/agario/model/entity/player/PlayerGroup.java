@@ -36,7 +36,7 @@ public class PlayerGroup implements PlayerComponent {
         }
 
         components.addAll(newCells);
-        return this; // Retourne le même groupe après modification
+        return this;
     }
 
     @Override
@@ -47,10 +47,11 @@ public class PlayerGroup implements PlayerComponent {
             }
         } else if (other instanceof Cell) {
             List<Cell> cells = getCells();
+
             for (Cell cell : cells) {
-                if (cell.canMerge((Cell) other)) {
-                    cell.merge(other);
-                    break; // On fusionne une seule fois
+                if (cell != other && cell.canMerge((Cell) other)) {
+                    cell.merge((Cell) other);
+                    break;
                 }
             }
         }

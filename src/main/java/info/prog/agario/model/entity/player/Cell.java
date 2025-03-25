@@ -1,6 +1,7 @@
 package info.prog.agario.model.entity.player;
 
 import info.prog.agario.model.entity.GameEntity;
+import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import info.prog.agario.utils.AnimationUtils;
 
@@ -67,6 +68,7 @@ public class Cell extends GameEntity implements PlayerComponent {
     public void setMass(double mass) {
         this.mass = mass;
         this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
     }
 
     public void move(double dx, double dy) {
@@ -82,6 +84,7 @@ public class Cell extends GameEntity implements PlayerComponent {
     public void absorb(GameEntity entity) {
         this.mass += 10;
         this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
     }
 
@@ -98,10 +101,8 @@ public class Cell extends GameEntity implements PlayerComponent {
 
         Cell newCell = new Cell(this.x.getValue() + 20, this.y.getValue() + 20, newMass, this.color);
 
-        this.updateSpeed();
         newCell.updateSpeed();
 
-        // Met à jour le temps de dernière division (utile pour la fusion)
         this.lastDivisionTime = System.currentTimeMillis();
         newCell.lastDivisionTime = this.lastDivisionTime;
 
@@ -119,34 +120,41 @@ public class Cell extends GameEntity implements PlayerComponent {
     }
 
     public void updateSpeed() {
-        this.speedMultiplier = Math.max(0.5, 5.0 / Math.sqrt(this.mass));
+        this.speedMultiplier = Math.max(0.5, 10.0 / Math.sqrt(this.mass));
     }
 
 
     @Override
     public void merge(PlayerComponent other) {
-        if (other instanceof Cell) {
-            Cell otherCell = (Cell) other;
+        if (!(other instanceof Cell)) return;
 
-            if (!canMerge(otherCell)) return;
+        Cell otherCell = (Cell) other;
 
-            this.mass += otherCell.getMass();
-            this.radius.set(10 * Math.sqrt(mass));
+        if (!canMerge(otherCell)) return;
 
-            if (parentGroup != null) {
-                parentGroup.removeComponent(otherCell);
-            }
+        this.mass += otherCell.getMass();
+        this.radius.set(10 * Math.sqrt(mass));
+        this.updateSpeed();
 
-            System.out.println("Fusion de cellules !");
+        if (parentGroup != null) {
+            parentGroup.removeComponent(otherCell);
         }
+
+        if (otherCell.getShape().getParent() != null) {
+            ((Pane) otherCell.getShape().getParent()).getChildren().remove(otherCell.getShape());
+        }
+
+        System.out.println("Fusion effectuée !");
     }
+
+
+
 
     public boolean canMerge(Cell other) {
         long currentTime = System.currentTimeMillis();
-        long elapsedTime = currentTime - lastDivisionTime;
+        long elapsedTime = currentTime - this.lastDivisionTime;
 
-
-        double requiredTime = MERGE_TIME + 100 * Math.sqrt(this.mass);
+        double requiredTime = MERGE_TIME + this.mass / 100.0; //
 
         return elapsedTime >= requiredTime;
     }
