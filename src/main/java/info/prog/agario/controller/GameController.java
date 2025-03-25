@@ -107,7 +107,7 @@ public class GameController {
             for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     if (entity instanceof Cell || entity instanceof Pellet) {
-                        cell.absorb(entity);  // Absorption de l'entité
+                        cell.absorb(entity);
                         root.getChildren().remove(entity.getShape());
                         iterator.remove();
                         absorbedSomething = true;
@@ -122,7 +122,4 @@ public class GameController {
             camera.update();
         }
     }
-
-
-
 }
