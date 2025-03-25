@@ -28,10 +28,17 @@ public class PlayerGroup implements PlayerComponent {
     }
 
     @Override
-    public void divide() {
+    public PlayerComponent divide() {
+        List<PlayerComponent> newCells = new ArrayList<>();
+
         for (PlayerComponent component : new ArrayList<>(components)) {
-            component.divide();
+            PlayerComponent divided = component.divide();
+            if (divided instanceof Cell) {
+                newCells.add(divided);
+            }
         }
+        components.addAll(newCells);
+        return null;
     }
 
     @Override

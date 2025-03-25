@@ -102,27 +102,27 @@ public class Cell extends GameEntity implements PlayerComponent {
     }
 
     @Override
-    public void divide() {
-        if (mass < 20) return;
+    public PlayerComponent divide() {
+        if (mass >= 20) {
 
-        double newMass = this.mass / 2;
+            double newMass = this.mass / 2;
 
-        this.setMass(newMass);
+            this.setMass(newMass);
 
-        Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
+            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
 
-        newCell.updateSpeed();
+            newCell.updateSpeed();
 
-        newCell.isBoosted = true;
-        newCell.boostStartTime = System.currentTimeMillis();
-        newCell.speedMultiplier *= BOOST_MULTIPLIER;
+            newCell.isBoosted = true;
+            newCell.boostStartTime = System.currentTimeMillis();
+            newCell.speedMultiplier *= BOOST_MULTIPLIER;
 
-        this.lastDivisionTime = System.currentTimeMillis();
-        newCell.lastDivisionTime = this.lastDivisionTime;
+            this.lastDivisionTime = System.currentTimeMillis();
+            newCell.lastDivisionTime = this.lastDivisionTime;
 
-        if (parentGroup != null) {
-            parentGroup.addComponent(newCell);
+            return newCell;
         }
+        return null;
     }
 
     public void updateSpeed() {
