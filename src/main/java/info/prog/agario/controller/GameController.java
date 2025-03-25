@@ -113,9 +113,9 @@ public class GameController {
 
             for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                    System.out.println("on rentre dans qqch");
+                    System.out.println("Player -> qqch");
                     if (entity instanceof Pellet) {
-                        System.out.println("c'est un pellet");
+                        System.out.println("Player -> Pellet");
                         cell.absorb(entity);
                         root.getChildren().remove(entity.getShape());
                         iterator.remove();
@@ -124,14 +124,14 @@ public class GameController {
                     } else if (entity instanceof Cell || entity instanceof Enemy) {
                         System.out.println("c'est qqn");
                         if(cell.getMass() >= ((Cell) entity).getMass()*1.33){
-                            System.out.println("on le mange");
+                            System.out.println("Player -> Enemy");
                             cell.absorb(entity);
                             root.getChildren().remove(entity.getShape());
                             iterator.remove();
                             absorbedSomething = true;
                             break;
                         } else if(((Cell) entity).getMass() >= cell.getMass()*1.33) {
-                            System.out.println("il nous mange");
+                            System.out.println("Enemy -> Player");
                             ((Cell) entity).absorb(cell);
                             root.getChildren().remove(cell.getShape());
                             iterator.remove();
@@ -143,11 +143,26 @@ public class GameController {
                 }
             }
             for (Enemy e : world.getEnemies()) {
+                for(Cell cellE : e.getEnemyGroup().getCells()){
+                    for (Cell cellP : world.getPlayer().getPlayerGroup().getCells()) {
+                        if (cellE.getShape().getBoundsInParent().intersects(cellP.getShape().getBoundsInParent())) {
+                            System.out.println("Enemy -> touche Joueur");
+                            if (entity instanceof Cell) {
+                                cellE.absorb(cellP);
+                                root.getChildren().remove(cellP.getShape());
+                                absorbedSomething = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            for (Enemy e : world.getEnemies()) {
                 for(Cell cell : e.getEnemyGroup().getCells()){
                     if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                        System.out.println("on rentre dans qqch");
+                        System.out.println("Enemy -> touche");
                         if (entity instanceof Pellet) {
-                            System.out.println("c'est un pellet");
+                            System.out.println("Enemy -> Pellet");
                             cell.absorb(entity);
                             root.getChildren().remove(entity.getShape());
                             iterator.remove();
@@ -160,7 +175,7 @@ public class GameController {
         }
 
         if (absorbedSomething) {
-            System.out.println("Absorption détectée ! Mise à jour du zoom.");
+            //System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
         }
     }

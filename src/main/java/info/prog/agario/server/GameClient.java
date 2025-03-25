@@ -34,8 +34,6 @@ public class GameClient {
             new Thread(this::listenForMessages).start();
             out.println("READY");
 
-            // Thread pour envoyer la position du joueur
-            new Thread(this::sendPlayerPosition).start();
 
         } catch (IOException | InterruptedException e) {
             System.out.println("Impossible de se connecter au serveur.");
@@ -65,21 +63,6 @@ public class GameClient {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void sendPlayerPosition() {
-        while (true) {
-            try {
-                double x = gameWorld.getPlayer().getX() + Math.random() * 2 - 1;
-                double y = gameWorld.getPlayer().getY() + Math.random() * 2 - 1;
-                gameWorld.updatePlayerPosition(x, y);
-                out.println("UPDATE_PLAYER_POSITION " + x + " " + y);
-
-                Thread.sleep(33);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         }
     }
 }
