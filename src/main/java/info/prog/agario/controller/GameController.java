@@ -98,7 +98,7 @@ public class GameController {
                 double distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance > 1) {
-                    double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
+                    double speed = Math.max(5.0, 5.0 / Math.sqrt(cell.getMass()));
                     cell.setVelocity(dx / distance * speed, dy / distance * speed);
                     cell.move(dx / distance * speed, dy / distance * speed);
                 }
@@ -126,66 +126,59 @@ public class GameController {
         }
 
         boolean absorbedSomething = false;
+        List<GameEntity> entitiesToRemove = new ArrayList<>();
+        List<Enemy> enemiesToRemove = new ArrayList<>();
 
-        Iterator<GameEntity> iterator = world.getEntities().iterator();
-        while (iterator.hasNext()) {
-            GameEntity entity = iterator.next();
-
-            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+        for (GameEntity entity : world.getEntities()) {
+            for (Cell cell : playerGroup.getCells()) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     System.out.println("Player -> qqch");
                     if (entity instanceof Pellet) {
                         System.out.println("Player -> Pellet");
                         cell.absorb(entity);
-                        root.getChildren().remove(entity.getShape());
-                        iterator.remove();
+                        entitiesToRemove.add(entity);
                         absorbedSomething = true;
                         break;
-                    } else if (entity instanceof Cell || entity instanceof Enemy) {
-                        System.out.println("c'est qqn");
-                        if(cell.getMass() >= ((Cell) entity).getMass()*1.33){
+                    }
+                }
+            }
+        }
+
+        for (Enemy enemy : world.getEnemies()) {
+            for (Cell enemyCell : enemy.getEnemyGroup().getCells()) {
+                for (Cell playerCell : playerGroup.getCells()) {
+                    if (enemyCell.getShape().getBoundsInParent().intersects(playerCell.getShape().getBoundsInParent())) {
+                        System.out.println("Enemy -> touche Joueur");
+                        if (playerCell.getMass() >= enemyCell.getMass() * 1.33) {
                             System.out.println("Player -> Enemy");
-                            cell.absorb(entity);
-                            root.getChildren().remove(entity.getShape());
-                            iterator.remove();
+                            playerCell.absorb(enemyCell);
+                            entitiesToRemove.add(enemyCell);
+                            enemiesToRemove.add(enemy);
                             absorbedSomething = true;
                             break;
-                        } else if(((Cell) entity).getMass() >= cell.getMass()*1.33) {
+                        } else if (enemyCell.getMass() >= playerCell.getMass() * 1.33) {
                             System.out.println("Enemy -> Player");
-                            ((Cell) entity).absorb(cell);
-                            root.getChildren().remove(cell.getShape());
-                            iterator.remove();
+                            enemyCell.absorb(playerCell);
+                            entitiesToRemove.add(playerCell);
                             absorbedSomething = true;
                             break;
                         }
                         System.out.println("on se respecte");
                     }
                 }
-            }
-            for (Enemy e : world.getEnemies()) {
-                for(Cell cellE : e.getEnemyGroup().getCells()){
-                    for (Cell cellP : world.getPlayer().getPlayerGroup().getCells()) {
-                        if (cellE.getShape().getBoundsInParent().intersects(cellP.getShape().getBoundsInParent())) {
-                            System.out.println("Enemy -> touche Joueur");
-                            if (entity instanceof Cell) {
-                                cellE.absorb(cellP);
-                                root.getChildren().remove(cellP.getShape());
-                                absorbedSomething = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            for (Enemy e : world.getEnemies()) {
-                for(Cell cell : e.getEnemyGroup().getCells()){
-                    if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                for (GameEntity entity : world.getEntities()) {
+                    if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                         System.out.println("Enemy -> touche");
                         if (entity instanceof Pellet) {
                             System.out.println("Enemy -> Pellet");
-                            cell.absorb(entity);
-                            root.getChildren().remove(entity.getShape());
-                            iterator.remove();
+                            enemyCell.absorb(entity);
+                            entitiesToRemove.add(entity);
+                            absorbedSomething = true;
+                            break;
+                        } else if (entity instanceof Cell) {
+                            System.out.println("Enemy -> Cell");
+                            enemyCell.absorb(entity);
+                            entitiesToRemove.add(entity);
                             absorbedSomething = true;
                             break;
                         }
@@ -194,9 +187,20 @@ public class GameController {
             }
         }
 
+        for (GameEntity entity : entitiesToRemove) {
+            world.getEntities().remove(entity);
+            System.out.println("Toutes les entités : " + world.getEntities().size());
+            root.getChildren().remove(entity.getShape());
+        }
+
+        for (Enemy enemy : enemiesToRemove) {
+            world.getEnemies().remove(enemy);
+        }
+
         if (absorbedSomething) {
-            //System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
         }
     }
+
+
 }

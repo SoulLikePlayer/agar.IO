@@ -32,7 +32,7 @@ public class RandomMovement implements Strategy{
             lastRandom[0] = Math.max(-10, Math.min(10, lastRandom[0] + deltaX));
             lastRandom[1] = Math.max(-10, Math.min(10, lastRandom[1] + deltaY));
 
-            double speed = 3.0;
+            double speed = 0.0;
             double distance = Math.sqrt(lastRandom[0] * lastRandom[0] + lastRandom[1] * lastRandom[1]);
             double factor = distance > 0 ? speed / distance : 1;
 

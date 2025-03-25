@@ -21,14 +21,14 @@ public class GameWorld {
     public GameWorld(String pseudo) {
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(1000, 1000, 10, pseudo);
+        player = new Player(1000, 1000, 100000, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         Random r = new Random();
         for(int i = 0; i < nbEnnemies; i++){
             Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10);
             enemies.add(enemy);
+            entities.add(enemy);
         }
-        //entities.add(enemy);
         //entities.add(EntityFactory.createEntity("cell",100,100,10));
         //Cell enemy = new Cell(100, 100, 10, Color.BLACK);
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
