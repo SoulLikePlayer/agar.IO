@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
 import java.util.Iterator;
+import java.util.List;
 
 public class GameController {
     private GameWorld world;
@@ -58,17 +59,19 @@ public class GameController {
 
     private void handleKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.SPACE) {
-            world.getPlayer().divide();
+            Player player = world.getPlayer();
+            player.divide(); // La division est maintenant propre
 
-            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+            List<Cell> updatedCells = player.getPlayerGroup().getCells();
+            for (Cell cell : updatedCells) {
                 if (!root.getChildren().contains(cell.getShape())) {
                     root.getChildren().add(cell.getShape());
                     cell.getShape().toFront();
-                    System.out.println("Nouvelle cellule ajoutée avec masse " + cell.getMass());
                 }
             }
         }
     }
+
 
 
 
