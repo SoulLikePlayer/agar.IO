@@ -1,5 +1,6 @@
 package info.prog.agario.model.entity;
 
+import info.prog.agario.model.world.Boundary;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.shape.Circle;
@@ -32,5 +33,13 @@ public abstract class GameEntity {
         this.y += dY;
         this.shape.setCenterX(this.x);
         this.shape.setCenterY(this.y);
+    }
+
+    public double getRadius() {
+        return this.radius;
+    }
+
+    public Boundary getBounds() {
+        return new Boundary(this.x - this.radius, this.y - this.radius,this.radius * 2, this.radius * 2);
     }
 }

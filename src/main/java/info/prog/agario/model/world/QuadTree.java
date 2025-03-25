@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class QuadTree {
     private List<GameEntity> entities;
 
-    public QuadTree() {
+    public QuadTree(Boundary boundary) {
         entities = new ArrayList<>();
     }
 
