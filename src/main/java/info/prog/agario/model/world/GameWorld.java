@@ -21,7 +21,7 @@ public class GameWorld {
     public GameWorld(String pseudo) {
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(300, 400, 100, pseudo);
+        player = new Player(1000, 1000, 10, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         Random r = new Random();
         for(int i = 0; i < nbEnnemies; i++){
@@ -37,7 +37,7 @@ public class GameWorld {
 
     private void generatePellets(int count) {
         for (int i = 0; i < count; i++) {
-            GameEntity pellet = EntityFactory.createEntity("pellet", Math.random() * 2000, Math.random() * 2000, 10);
+            GameEntity pellet = EntityFactory.createEntity("pellet", Math.random() * 2000, Math.random() * 2000, 0);
             entities.add(pellet);
             quadTree.insert(pellet);
         }
@@ -60,5 +60,4 @@ public class GameWorld {
     public QuadTree getQuadTree() {
         return quadTree;
     }
-
 }

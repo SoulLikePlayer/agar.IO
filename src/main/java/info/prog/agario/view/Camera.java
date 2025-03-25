@@ -30,15 +30,13 @@ public class Camera {
         double centerX = totalX / totalMass;
         double centerY = totalY / totalMass;
 
-        double averageRadius = Math.sqrt(totalMass) * 10;
         double targetZoom = BASE_ZOOM / (Math.sqrt(totalMass / 100));
         targetZoom = Math.max(MIN_ZOOM, Math.min(BASE_ZOOM, targetZoom));
 
-        ScaleTransition scaleTransition = new ScaleTransition(Duration.seconds(ZOOM_ANIMATION_DURATION), root);
-        scaleTransition.setToX(targetZoom);
-        scaleTransition.setToY(targetZoom);
-        scaleTransition.play();
+        root.setScaleX(targetZoom);
+        root.setScaleY(targetZoom);
 
+        double averageRadius = Math.sqrt(totalMass) * 10;
         double centeredX = (400 - centerX) * targetZoom;
         double centeredY = (300 - centerY) * targetZoom;
 
@@ -47,4 +45,5 @@ public class Camera {
         translateTransition.setToY(centeredY);
         translateTransition.play();
     }
+
 }

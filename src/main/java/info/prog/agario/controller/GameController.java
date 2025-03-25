@@ -160,7 +160,7 @@ public class GameController {
         }
 
         if (absorbedSomething) {
-            //System.out.println("Absorption détectée ! Mise à jour du zoom.");
+            System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
         }
     }
