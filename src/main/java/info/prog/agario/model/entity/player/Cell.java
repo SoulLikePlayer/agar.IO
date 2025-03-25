@@ -96,19 +96,30 @@ public class Cell extends GameEntity implements PlayerComponent {
         double newMass = this.mass / 2;
         this.setMass(newMass);
 
-        Cell newCell = new Cell(this.x.getValue() + 100, this.y.getValue() + 100, newMass, this.color);
+        Cell newCell = new Cell(this.x.getValue() + 20, this.y.getValue() + 20, newMass, this.color);
 
-        System.out.println("Masse Cell : " + getMass());
-        System.out.println("Masse New Cell : " + newCell.getMass());
-        System.out.println("Vitesse Cell : " + speedMultiplier);
-        System.out.println("Vitesse New Cell : " + newCell.speedMultiplier);
-        System.out.println("velo Cell : " + velocityX);
-        System.out.println("velo New Cell : " + newCell.velocityX);
+        this.updateSpeed();
+        newCell.updateSpeed();
+
+        // Met à jour le temps de dernière division (utile pour la fusion)
+        this.lastDivisionTime = System.currentTimeMillis();
+        newCell.lastDivisionTime = this.lastDivisionTime;
+
         if (parentGroup != null) {
             parentGroup.addComponent(newCell);
         }
 
+        System.out.println("Division effectuée :");
+        System.out.println(" - Ancienne cellule - Masse : " + this.mass + ", Vitesse : " + this.speedMultiplier);
+        System.out.println(" - Nouvelle cellule - Masse : " + newCell.getMass() + ", Vitesse : " + newCell.speedMultiplier);
+        System.out.println(" - Ancienne cellule - Radius : " + this.radius);
+        System.out.println(" - Nouvelle cellule - Radius : " + newCell.radius);
+
         return this;
+    }
+
+    public void updateSpeed() {
+        this.speedMultiplier = Math.max(0.5, 5.0 / Math.sqrt(this.mass));
     }
 
 

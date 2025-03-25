@@ -33,9 +33,6 @@ public class PlayerGroup implements PlayerComponent {
 
         for (PlayerComponent component : new ArrayList<>(components)) {
             PlayerComponent divided = component.divide();
-            if (divided instanceof Cell) {
-                newCells.add(divided);
-            }
         }
 
         components.addAll(newCells);
