@@ -27,7 +27,7 @@ public class RandomMovement implements Strategy{
         Timeline tl = new Timeline(new KeyFrame(Duration.millis(33), event -> {
             int moveX = r.nextInt(this.lastRandom[0] -1,this.lastRandom[0] +2);
             int moveY = r.nextInt(this.lastRandom[1] -1,this.lastRandom[1] +2);
-            entity.move(moveX*0.9,moveY*0.9);
+            entity.move(Math.round(moveX*0.9),Math.round(moveY*0.9));
             this.lastRandom[0] = moveX;
             this.lastRandom[1] = moveY;
             System.out.println("Co X : " + entity.getShape().getCenterX() + " Co Y : " + entity.getShape().getCenterY());
