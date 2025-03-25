@@ -3,7 +3,6 @@ package info.prog.agario.model.world;
 import info.prog.agario.model.entity.EntityFactory;
 import info.prog.agario.model.entity.GameEntity;
 import info.prog.agario.model.entity.player.Player;
-
 import java.util.List;
 import java.util.ArrayList;
 
@@ -11,13 +10,22 @@ public class GameWorld {
     private QuadTree quadTree;
     private List<GameEntity> entities;
     private Player player;
+    private boolean isOnline;
 
     public GameWorld(String pseudo) {
+        this(pseudo, false);
+    }
+
+    public GameWorld(String pseudo, boolean isOnline) {
+        this.isOnline = isOnline;
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(300, 400, 10, pseudo);
-        System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
-        generatePellets(200);
+
+        if (!isOnline) { // Mode local : on génère le joueur et les pastilles
+            player = new Player(300, 400, 10, pseudo);
+            System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
+            generatePellets(200);
+        }
     }
 
     private void generatePellets(int count) {
@@ -32,6 +40,15 @@ public class GameWorld {
         return entities;
     }
 
+    public void clearEntities() {
+        entities.clear();
+    }
+
+    public void addEntity(GameEntity entity) {
+        entities.add(entity);
+        quadTree.insert(entity);
+    }
+
     public Player getPlayer() {
         return player;
     }
@@ -40,3 +57,4 @@ public class GameWorld {
         return quadTree;
     }
 }
+
