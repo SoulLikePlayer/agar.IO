@@ -42,7 +42,7 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.color = color;
         this.shape.setFill(color);
         this.speedMultiplier = 3.0;
-        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
+        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius);
     }
 
     public double getMass() {
@@ -51,7 +51,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     public void setMass(double mass) {
         this.mass = mass;
-        this.radius.set(10 * Math.sqrt(mass));
+        this.radius = (10 * Math.sqrt(mass));
     }
 
     public void move(double dx, double dy) {
@@ -65,7 +65,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     public void absorb(GameEntity entity) {
         this.mass += 10;
-        this.radius.set(10 * Math.sqrt(mass));
+        this.radius = (10 * Math.sqrt(mass));
         AnimationUtils.playGrowAnimation(this.shape);
     }
 

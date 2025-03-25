@@ -41,6 +41,8 @@ public class GameLauncher extends Application {
         if (online) {
             System.out.println("Connexion au mode en ligne... (fonctionnalité non encore implémentée)");
             return;
+        } else {
+            System.out.println("Jeu en local.");
         }
         GameView gameView = new GameView(pseudo);
         stage.setScene(gameView.getScene());
