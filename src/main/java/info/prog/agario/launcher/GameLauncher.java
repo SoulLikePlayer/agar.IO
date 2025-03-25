@@ -1,5 +1,6 @@
 package info.prog.agario.launcher;
 
+import info.prog.agario.server.GameClient;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -39,8 +40,10 @@ public class GameLauncher extends Application {
             pseudo = RANDOM_PSEUDOS[new Random().nextInt(RANDOM_PSEUDOS.length)];
         }
         if (online) {
-            System.out.println("Connexion au mode en ligne... (fonctionnalité non encore implémentée)");
-            return;
+            new Thread(() -> {
+                new GameClient().connect();
+            }).start();
+            System.out.println("Connexion au mode en ligne...");
         }
         GameView gameView = new GameView(pseudo);
         stage.setScene(gameView.getScene());
