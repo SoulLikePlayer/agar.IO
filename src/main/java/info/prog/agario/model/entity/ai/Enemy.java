@@ -30,7 +30,7 @@ public class Enemy extends GameEntity {
     }
 
     public void move() throws InterruptedException {
-        strat = new PelletMovement(this.enemyGroup, world.getQuadTree());
+        strat = new CellEatingMovement(this.enemyGroup, world.getPlayer().getPlayerGroup());
         strat.movement();
     }
 

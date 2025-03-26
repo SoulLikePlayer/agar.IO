@@ -15,7 +15,7 @@ public class GameView {
         root = new Pane();
         world = new GameWorld(pseudo);
         controller = new GameController(world, root);
-        scene = new Scene(root, 800, 600);
+        scene = new Scene(root, 1080, 720);
         controller.initialize();
     }
 
