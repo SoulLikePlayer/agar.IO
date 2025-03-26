@@ -36,7 +36,7 @@ public class GameController {
         for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
             root.getChildren().add(cell.getShape());
         }
-        for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 2 )) {
+        for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 10 )) {
             if(entity instanceof Pellet) {
                 root.getChildren().add(entity.getShape());
             }
@@ -118,6 +118,7 @@ public class GameController {
         boolean absorbedSomething = false;
         List<GameEntity> entitiesToRemove = new ArrayList<>();
         List<Enemy> enemiesToRemove = new ArrayList<>();
+        List<GameEntity> newEntities = new ArrayList<>();
 
         for (int i = 0; i < cells.size(); i++) {
             playerGroup.merge(cells.get(i));
@@ -125,7 +126,8 @@ public class GameController {
 
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
-            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 2);
+            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 10);
+            newEntities.addAll(nearbyEntities);
 
             for (GameEntity entity : nearbyEntities) {
                 if (entity instanceof Pellet && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
@@ -167,7 +169,7 @@ public class GameController {
                 if(absorbedSomething){
                     break;
                 }
-                for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 2 )) {
+                for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 10 )) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                         if (entity instanceof Pellet) {
                             System.out.println("Enemy -> Pellet");
@@ -181,14 +183,23 @@ public class GameController {
             }
         }
 
+
+        for(GameEntity entity : newEntities){
+            if(!root.getChildren().contains(entity.getShape())) {
+                root.getChildren().add(entity.getShape());
+            }
+        }
+
         for (GameEntity entityToRemove : entitiesToRemove) {
             if(entityToRemove instanceof Cell){
                 playerGroup.removeComponent((Cell)entityToRemove);
                 for (Enemy e : world.getEnemies()) {
-                e.getEnemyGroup().removeComponent((Cell) entityToRemove);
+                    e.getEnemyGroup().removeComponent((Cell) entityToRemove);
                 }
             }
-            world.getQuadTree().remove(entityToRemove);
+            else {
+                world.getQuadTree().remove(entityToRemove);
+            }
             //System.out.println("Toutes les entités : " + world.getEntities().size());
             root.getChildren().remove(entityToRemove.getShape());
         }
@@ -204,6 +215,7 @@ public class GameController {
             camera.update();
         }
     }
+
 
 
     private void smallestInFront(){

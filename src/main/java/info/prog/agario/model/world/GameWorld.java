@@ -17,9 +17,9 @@ public class GameWorld {
     private ArrayList<Enemy> enemies = new ArrayList<>();
     private static final int NB_ENEMIES = 5;
 
-    private static final int SIZE = 200_000;
+    private static final int SIZE = 2000;
 
-    private static final int NB_PELLETS = 2_000_000;
+    private static final int NB_PELLETS = 200;
 
     public GameWorld(String pseudo) {
         quadTree = new QuadTree(new Boundary(0, 0, SIZE, SIZE));

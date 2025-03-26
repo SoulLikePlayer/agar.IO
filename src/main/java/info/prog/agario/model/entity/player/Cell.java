@@ -2,11 +2,14 @@ package info.prog.agario.model.entity.player;
 
 import info.prog.agario.model.entity.GameEntity;
 import javafx.scene.layout.Pane;
+import info.prog.agario.model.entity.Pellet;
 import javafx.scene.paint.Color;
 import info.prog.agario.utils.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static info.prog.agario.controller.GameController.intersectionPercentage;
 
 public class Cell extends GameEntity implements PlayerComponent {
     private double mass;
@@ -61,7 +64,7 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.shape.setFill(color);
         this.shape.setStroke(color.darker());
         this.shape.setStrokeWidth(3);
-        this.speedMultiplier = 3;
+        this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
         System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
     }
@@ -83,6 +86,7 @@ public class Cell extends GameEntity implements PlayerComponent {
             updateSpeed();
             System.out.println("Boost terminé, vitesse normale : " + speedMultiplier);
         }
+        //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
         double newX = shape.getCenterX() + dx * speedMultiplier;
         double newY = shape.getCenterY() + dy * speedMultiplier;
@@ -92,11 +96,20 @@ public class Cell extends GameEntity implements PlayerComponent {
         y.setValue(newY);
     }
 
-    public void absorb(GameEntity entity) {
+    public void absorbPellet(GameEntity entity) {
         this.mass += 10;
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
+        //System.out.println("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
+    }
+
+    public void absorbCell(Cell cell) {
+        this.mass += cell.getMass();
+        this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
+        AnimationUtils.playGrowAnimation(this.shape);
+        System.out.println("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
     }
 
     public void setSpeedMultiplier(double multiplier) {
@@ -140,7 +153,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
         if (!canMerge(otherCell)) return;
 
-        if (!(this.getShape().getBoundsInParent().intersects(((Cell)other).getShape().getBoundsInParent()))) return;
+        if ((intersectionPercentage(this, (Cell)other) <= 33)) return;
 
         this.mass += otherCell.getMass();
         this.setMass(this.mass);
