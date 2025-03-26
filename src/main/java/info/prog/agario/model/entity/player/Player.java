@@ -13,7 +13,7 @@ public class Player {
         this.pseudo = pseudo;
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.playerGroup = new PlayerGroup();
-        Cell firstCell = new Cell(x, y, mass, this.color);
+        Cell firstCell = new Cell(x, y, mass, this.color, pseudo);
         firstCell.setParentGroup(this.playerGroup);
         playerGroup.addComponent(firstCell);
         this.pseudoText = new Text(pseudo);

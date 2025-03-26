@@ -1,7 +1,6 @@
 package info.prog.agario.controller;
 
 import info.prog.agario.launcher.GameLauncher;
-import info.prog.agario.launcher.Main;
 import info.prog.agario.model.entity.*;
 import info.prog.agario.model.entity.ai.Enemy;
 import info.prog.agario.model.entity.player.Cell;
@@ -9,7 +8,6 @@ import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
 import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.AnimationTimer;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
@@ -23,7 +21,6 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 public class GameController {
@@ -51,13 +48,13 @@ public class GameController {
         for (Enemy e : world.getEnemies()) {
             for(Cell cell : e.getEnemyGroup().getCells()) {
                 root.getChildren().add(cell.getShape());
+                root.getChildren().add(cell.getPseudo());
             }
         }
         for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
             root.getChildren().add(cell.getShape());
+            root.getChildren().add(cell.getPseudo());
         }
-
-        root.getChildren().add(world.getPlayer().getPseudoText());
         root.setOnKeyPressed(this::handleKeyPress);
         root.setFocusTraversable(true);
         root.requestFocus();
@@ -85,7 +82,9 @@ public class GameController {
             for (Cell cell : updatedCells) {
                 if (!root.getChildren().contains(cell.getShape())) {
                     root.getChildren().add(cell.getShape());
+                    root.getChildren().add(cell.getPseudo());
                     cell.getShape().toFront();
+                    cell.getPseudo().toFront();
                 }
             }
         }
@@ -202,6 +201,7 @@ public class GameController {
 
         for (GameEntity entityToRemove : entitiesToRemove) {
             if(entityToRemove instanceof Cell){
+                root.getChildren().remove(((Cell) entityToRemove).getPseudo());
                 playerGroup.removeComponent((Cell)entityToRemove);
                 for (Enemy e : world.getEnemies()) {
                 e.getEnemyGroup().removeComponent((Cell) entityToRemove);
@@ -260,7 +260,9 @@ public class GameController {
         cells.sort(Comparator.comparing(Cell::getMass).reversed());
         for (Cell cell : cells) {
             cell.getShape().toFront();
+            cell.getPseudo().toFront();
         }
+
     }
 
     public static double intersectionPercentage(Cell c1, Cell c2) {
