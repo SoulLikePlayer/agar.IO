@@ -13,6 +13,7 @@ import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
@@ -141,7 +142,7 @@ public class GameController {
 
 
     private void smallestInFront(){
-        List<Cell> cells = world.getPlayer().getPlayerGroup().getCells();
+        List<Cell> cells = new ArrayList<>(world.getPlayer().getPlayerGroup().getCells());
         cells.sort(Comparator.comparing(Cell::getMass).reversed());
         for (Cell cell : cells) {
             cell.getShape().toFront();
