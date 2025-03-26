@@ -33,12 +33,11 @@ public class GameController {
     }
 
     public void initialize() {
-        for (GameEntity entity : world.getEntities()) {
-            root.getChildren().add(entity.getShape());
-        }
-
         for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
             root.getChildren().add(cell.getShape());
+        }
+        for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 2 )) {
+            root.getChildren().add(entity.getShape());
         }
 
         root.getChildren().add(world.getPlayer().getPseudoText());
@@ -118,7 +117,7 @@ public class GameController {
 
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
-            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius);
+            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 2);
 
             for (GameEntity entity : nearbyEntities) {
                 if (entity instanceof Pellet && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
