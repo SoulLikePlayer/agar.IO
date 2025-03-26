@@ -5,7 +5,7 @@ import java.util.List;
 public interface PlayerComponent {
     double getMass();
     void move(double dx, double dy);
-    void divide();
+    PlayerComponent divide();
     void merge(PlayerComponent other);
 
     List<Cell> getCells();

@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class GameWorld {
     private QuadTree quadTree;
     private List<GameEntity> entities;
-    private Player player;
+    public Player player;
     private boolean isOnline;
 
     public GameWorld(String pseudo) {
@@ -20,9 +20,9 @@ public class GameWorld {
         this.isOnline = isOnline;
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(300, 400, 10, pseudo);
 
         if (!isOnline) {
+            player = new Player(300, 400, 10, pseudo);
             System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
             generatePellets(200);
         }
@@ -51,6 +51,10 @@ public class GameWorld {
 
     public Player getPlayer() {
         return player;
+    }
+
+    public void addPlayer(Player player) {
+        this.player = player;
     }
 
     public QuadTree getQuadTree() {

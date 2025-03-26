@@ -1,6 +1,7 @@
 package info.prog.agario.view;
 
 import info.prog.agario.controller.GameController;
+import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.network.GameClient;
 import javafx.application.Platform;
 import javafx.scene.Scene;
@@ -27,13 +28,12 @@ public class GameView {
         root = new Pane();
         world = new GameWorld(pseudo, isOnline);
         controller = new GameController(world, root);
-        scene = new Scene(root, 800, 600);
+        scene = new Scene(root, 2000, 2000);
         if(!isOnline){
             controller.initialize();
         }
         else{
             startListening();
-            //controller.initialize();
         }
 
 
@@ -51,8 +51,6 @@ public class GameView {
                         Platform.runLater(() -> initializeWorld(update));
                     } else if (update.startsWith("UPDATE:")) {
                         Platform.runLater(() -> updateWorld(update));
-                    } else if(update.startsWith("NEW_PLAYER:")) {
-                        Platform.runLater(() -> addNewPlayer(update));
                     }
                 }
             } catch (Exception e) {
@@ -61,65 +59,16 @@ public class GameView {
         }).start();
     }
 
-    public void addNewPlayer(String data){
-        String[] entities = data.substring(11).split(";");
-        for (String entityData : entities) {
-            System.out.println(entityData);
-            String[] parts = entityData.split(",");
-            if(parts.length == 5){
-                String type = parts[0];
-                double x = Double.parseDouble(parts[2]);
-                double y = Double.parseDouble(parts[3]);
-                double radius = Double.parseDouble(parts[4]);
 
-                GameEntity entity = EntityFactory.createEntity(type, x, y, radius);
-                world.addEntity(entity);
-                root.getChildren().add(entity.getShape());
-            }
-        }
-    }
 
     private void initializeWorld(String initData) {
-        world.clearEntities();
-        root.getChildren().clear();
-
-        String[] entities = initData.substring(5).split(";");
-        for (String entityData : entities) {
-            String[] parts = entityData.split(",");
-            if (parts.length == 5) {
-                String type = parts[0];
-                double x = Double.parseDouble(parts[2]);
-                double y = Double.parseDouble(parts[3]);
-                double radius = Double.parseDouble(parts[4]);
-
-                GameEntity entity = EntityFactory.createEntity(type, x, y, radius);
-                world.addEntity(entity);
-                root.getChildren().add(entity.getShape());
-                System.out.println("Ajout de l'entiré : "+ type + " à " + x + "," + y);
-            }
-        }
+        //TODO : CREATION DU MONDE
     }
 
 
 
     private void updateWorld(String update) {
-        world.clearEntities();
-        root.getChildren().clear();
-
-        String[] entities = update.substring(7).split(";");
-        for (String entityData : entities) {
-            String[] parts = entityData.split(",");
-            if (parts.length == 4) {
-                String type = parts[0];
-                double x = Double.parseDouble(parts[1]);
-                double y = Double.parseDouble(parts[2]);
-                double radius = Double.parseDouble(parts[3]);
-
-                GameEntity entity = EntityFactory.createEntity(type, x, y, radius);
-                world.addEntity(entity);
-                root.getChildren().add(entity.getShape());
-            }
-        }
+        //TODO : UPDATE
     }
 
     public Scene getScene() {

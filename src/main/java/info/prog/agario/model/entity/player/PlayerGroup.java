@@ -28,10 +28,18 @@ public class PlayerGroup implements PlayerComponent {
     }
 
     @Override
-    public void divide() {
+    public PlayerComponent divide() {
+        List<PlayerComponent> newCells = new ArrayList<>();
+
         for (PlayerComponent component : new ArrayList<>(components)) {
-            component.divide();
+            PlayerComponent divided = component.divide();
+            if (divided instanceof Cell) {
+                ((Cell) divided).setParentGroup(this);
+                newCells.add(divided);
+            }
         }
+        components.addAll(newCells);
+        return null;
     }
 
     @Override
@@ -44,8 +52,8 @@ public class PlayerGroup implements PlayerComponent {
             List<Cell> cells = getCells();
 
             for (Cell cell : cells) {
-                if (cell != other && cell.canMerge((Cell) other)) {
-                    cell.merge((Cell) other);
+                if (cell != other && cell.canMerge((Cell)other)) {
+                    cell.merge(other);
                     break;
                 }
             }
