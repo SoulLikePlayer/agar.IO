@@ -139,7 +139,8 @@ public class Cell extends GameEntity implements PlayerComponent {
         if (!canMerge(otherCell)) return;
 
         this.mass += otherCell.getMass();
-        this.radius.set(10 * Math.sqrt(mass));
+        this.setMass(this.mass);
+
         this.updateSpeed();
 
         if (parentGroup != null) {
@@ -149,8 +150,11 @@ public class Cell extends GameEntity implements PlayerComponent {
         if (otherCell.getShape().getParent() != null) {
             ((Pane) otherCell.getShape().getParent()).getChildren().remove(otherCell.getShape());
         }
+
+        this.lastDivisionTime = System.currentTimeMillis();
+
         AnimationUtils.playGrowAnimation(this.shape);
-        System.out.println("Fusion effectuée !");
+        System.out.println("Fusion effectuée ! Nouvelle masse : " + this.mass);
     }
 
 
@@ -158,11 +162,12 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     public boolean canMerge(Cell other) {
         long currentTime = System.currentTimeMillis();
-        long elapsedTime = currentTime - this.lastDivisionTime;
+        long elapsedTimeThis = currentTime - this.lastDivisionTime;
+        long elapsedTimeOther = currentTime - other.lastDivisionTime;
 
         double requiredTime = MERGE_TIME + this.mass / 100.0;
 
-        return elapsedTime >= requiredTime;
+        return elapsedTimeThis >= requiredTime && elapsedTimeOther >= requiredTime;
     }
 
     @Override

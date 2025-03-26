@@ -107,15 +107,7 @@ public class GameController {
         List<Cell> cells = playerGroup.getCells();
 
         for (int i = 0; i < cells.size(); i++) {
-            for (int j = i + 1; j < cells.size(); j++) {
-                Cell cell1 = cells.get(i);
-                Cell cell2 = cells.get(j);
-
-                if (cell1.canMerge(cell2) && cell1.getShape().getBoundsInParent().intersects(cell2.getShape().getBoundsInParent())) {
-                    cell1.merge(cell2);
-                    break;
-                }
-            }
+            playerGroup.merge(cells.get(i));
         }
 
         boolean absorbedSomething = false;

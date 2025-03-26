@@ -34,6 +34,7 @@ public class PlayerGroup implements PlayerComponent {
         for (PlayerComponent component : new ArrayList<>(components)) {
             PlayerComponent divided = component.divide();
             if (divided instanceof Cell) {
+                ((Cell) divided).setParentGroup(this);
                 newCells.add(divided);
             }
         }
@@ -51,8 +52,8 @@ public class PlayerGroup implements PlayerComponent {
             List<Cell> cells = getCells();
 
             for (Cell cell : cells) {
-                if (cell != other && cell.canMerge((Cell) other)) {
-                    cell.merge((Cell) other);
+                if (cell != other && cell.canMerge((Cell)other)) {
+                    cell.merge(other);
                     break;
                 }
             }
