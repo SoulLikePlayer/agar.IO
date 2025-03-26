@@ -1,5 +1,6 @@
 package info.prog.agario.model.entity;
 
+import info.prog.agario.model.world.Boundary;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.shape.Circle;
@@ -36,18 +37,27 @@ public abstract class GameEntity {
     public double getY() {
         return y.get();
     }
+
+    public void move(double dX, double dY){
+        this.x.set(this.x.get() + dX);
+        this.y.set(this.y.get() + dY);
+        this.shape.setCenterX(this.x.get());
+        this.shape.setCenterY(this.y.get());
+        //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    }
+
+    public void setPosition(double newX, double newY){
+        this.x.setValue(newX);
+        this.y.setValue(newY);
+        this.shape.setCenterX(newX);
+        this.shape.setCenterY(newY);
+    }
+
     public double getRadius() {
         return radius.get();
     }
-    public void setPosition(double newX, double newY) {
-        x.set(newX);
-        y.set(newY);
-        shape.setCenterX(newX);
-        shape.setCenterY(newY);
-    }
-    public Boundary getBounds() {
-        return new Boundary(x.get() - radius.get(), y.get() - radius.get(),
-                radius.get() * 2, radius.get() * 2);
-    }
 
+    public Boundary getBounds() {
+        return new Boundary(x.get() - radius.get(), y.get() - radius.get(),radius.get() * 2, radius.get() * 2);
+    }
 }

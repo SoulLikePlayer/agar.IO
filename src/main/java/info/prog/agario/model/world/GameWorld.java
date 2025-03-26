@@ -2,26 +2,38 @@ package info.prog.agario.model.world;
 
 import info.prog.agario.model.entity.EntityFactory;
 import info.prog.agario.model.entity.GameEntity;
+import info.prog.agario.model.entity.ai.Enemy;
+import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.Player;
 import java.util.NavigableMap;
 import java.util.Random;
 import java.util.TreeMap;
+import javafx.scene.paint.Color;
 
 import info.prog.agario.model.world.Boundary;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class GameWorld {
-
     private QuadTree quadTree;
     private List<GameEntity> entities;
     private Player player;
+    private ArrayList<Enemy> enemies = new ArrayList<>();
+    private int nbEnnemies = 5;
 
     public GameWorld(String pseudo) {
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(300, 400, 10, pseudo);
+        player = new Player(1000, 1000, 1, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
+        Random r = new Random();
+        for(int i = 0; i < nbEnnemies; i++){
+            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10);
+            enemies.add(enemy);
+            entities.add(enemy);
+        }
+        System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
         generatePellets(200);
     }
 
@@ -62,6 +74,9 @@ public class GameWorld {
     public Player getPlayer() {
         return player;
     }
+
+
+    public ArrayList<Enemy> getEnemies(){ return enemies; }
 
     public QuadTree getQuadTree() {
         return quadTree;

@@ -14,21 +14,19 @@ import java.util.List;
 
 
 public class Cell extends GameEntity implements PlayerComponent {
-
-
-    private static final int MERGE_TIME = 5000;
-
-    private static final int BOOST_DURATION = 1000;
-    private double multiplicatorGain;
     private double mass;
     private Color color;
     private double speedMultiplier;
     private double velocityX = 0;
     private double velocityY = 0;
+    private PlayerGroup parentGroup;
+
+    private static final int MERGE_TIME = 5000;
+    private static final int BOOST_DURATION = 1000;
+    private double multiplicatorGain;
     private static final int BOOST_MULTIPLIER = 3;
     private boolean isBoosted = false;
     private long boostStartTime;
-    private PlayerGroup parentGroup;
 
     private long lastDivisionTime;
 
@@ -72,6 +70,7 @@ public class Cell extends GameEntity implements PlayerComponent {
         if (Math.abs(velocityX) < 0.1) velocityX = 0;
         if (Math.abs(velocityY) < 0.1) velocityY = 0;
     }
+
     public Cell(double x, double y, double mass, Color color) {
         super(x, y, 10 * Math.sqrt(mass));
         this.setMass(mass);
@@ -100,6 +99,7 @@ public class Cell extends GameEntity implements PlayerComponent {
     public void setMass(double mass) {
         this.mass = mass;
         this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
     }
 
     public void move(double dx, double dy) {
@@ -109,6 +109,7 @@ public class Cell extends GameEntity implements PlayerComponent {
             updateSpeed();
             System.out.println("Boost terminé, vitesse normale : " + speedMultiplier);
         }
+        //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
         double newX = shape.getCenterX() + dx * speedMultiplier;
         double newY = shape.getCenterY() + dy * speedMultiplier;
@@ -116,15 +117,13 @@ public class Cell extends GameEntity implements PlayerComponent {
         shape.setCenterY(newY);
         x.setValue(newX);
         y.setValue(newY);
-
     }
-
 
     public void contactExplosion(GameEntity entity, Pane root){
         ((SpecialPellet) entity).ExplosionEffect(this, root);
     }
 
-    public void absorb(GameEntity entity) {
+    public void absorbPellet(GameEntity entity) {
         if (entity instanceof SpecialPellet) {
             ((SpecialPellet) entity).PlayEffect(this);
         }
@@ -132,6 +131,15 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
+        System.out.println("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
+    }
+
+    public void absorbCell(Cell cell) {
+        this.mass += cell.getMass();
+        this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
+        AnimationUtils.playGrowAnimation(this.shape);
+        System.out.println("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
     }
 
     public void setSpeedMultiplier(double multiplier) {
@@ -141,17 +149,19 @@ public class Cell extends GameEntity implements PlayerComponent {
     public double GetSpeedMultiplier() {
         return speedMultiplier;
     }
-    public void updateSpeed() {
-        this.speedMultiplier = Math.max(0.5, 10.0 / Math.sqrt(this.mass));
-    }
 
     @Override
     public PlayerComponent divide() {
         if (mass >= 20) {
+
             double newMass = this.mass / 2;
+
             this.setMass(newMass);
+
             Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
+
             newCell.updateSpeed();
+
             newCell.isBoosted = true;
             newCell.boostStartTime = System.currentTimeMillis();
             newCell.speedMultiplier *= BOOST_MULTIPLIER;
@@ -162,6 +172,10 @@ public class Cell extends GameEntity implements PlayerComponent {
             return newCell;
         }
         return null;
+    }
+
+    public void updateSpeed() {
+        setSpeedMultiplier(Math.max(0.5, 10.0 / Math.sqrt(this.mass)));
     }
 
 
@@ -194,11 +208,16 @@ public class Cell extends GameEntity implements PlayerComponent {
         System.out.println("Fusion effectuée ! Nouvelle masse : " + this.mass);
     }
 
+
+
+
     public boolean canMerge(Cell other) {
         long currentTime = System.currentTimeMillis();
         long elapsedTimeThis = currentTime - this.lastDivisionTime;
         long elapsedTimeOther = currentTime - other.lastDivisionTime;
+
         double requiredTime = MERGE_TIME + this.mass / 100.0;
+
         return elapsedTimeThis >= requiredTime && elapsedTimeOther >= requiredTime;
     }
 
@@ -208,6 +227,4 @@ public class Cell extends GameEntity implements PlayerComponent {
         lst.add(this);
         return lst;
     }
-
-
 }
