@@ -19,7 +19,7 @@ public class GameWorld {
 
     private static final int SIZE = 2000;
 
-    private static final int NB_PELLETS = 200;
+    private static final int NB_PELLETS = 20;
 
     public GameWorld(String pseudo) {
         quadTree = new QuadTree(new Boundary(0, 0, SIZE, SIZE));

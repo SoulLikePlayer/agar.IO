@@ -11,7 +11,6 @@ public class PlayerGroup implements PlayerComponent {
         System.out.println("Ajout d'un composant : " + component);
     }
 
-
     public void removeComponent(PlayerComponent component) {
         components.remove(component);
     }
@@ -53,13 +52,37 @@ public class PlayerGroup implements PlayerComponent {
             List<Cell> cells = getCells();
 
             for (Cell cell : cells) {
-                if (cell != other && cell.canMerge((Cell)other)) {
-                    cell.merge(other);
-                    break;
+                if (cell != other) {
+                    if (cell.canMerge((Cell) other)) {
+                        cell.merge(other);
+                        break;
+                    } else {
+                        repelCells(cell, (Cell) other);
+                    }
                 }
             }
         }
     }
+
+    private void repelCells(Cell c1, Cell c2) {
+        double dx = c2.getX() - c1.getX();
+        double dy = c2.getY() - c1.getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < (c1.getRadius() + c2.getRadius())) {
+            double repelStrength = 5.0;
+
+            double totalMass = c1.getMass() + c2.getMass();
+            double influence = c2.getMass() / totalMass;
+
+            double factor = repelStrength / Math.max(distance, 1);
+            double repelX = dx * factor;
+            double repelY = dy * factor;
+
+            c1.move(-repelX * influence, -repelY * influence);
+        }
+    }
+
 
     public List<PlayerComponent> getComponents() {
         return components;
