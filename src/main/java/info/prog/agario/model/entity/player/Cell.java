@@ -140,6 +140,8 @@ public class Cell extends GameEntity implements PlayerComponent {
 
         if (!canMerge(otherCell)) return;
 
+        if (!(this.getShape().getBoundsInParent().intersects(((Cell)other).getShape().getBoundsInParent()))) return;
+
         this.mass += otherCell.getMass();
         this.setMass(this.mass);
 
