@@ -169,7 +169,7 @@ public class GameController {
                 if(absorbedSomething){
                     break;
                 }
-                for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 10 )) {
+                for (GameEntity entity : world.getQuadTree().retrieve(enemy.getEnemyGroup().getCells().get(0), enemy.getEnemyGroup().getCells().get(0).getRadius() * 2 )) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                         if (entity instanceof Pellet) {
                             System.out.println("Enemy -> Pellet");

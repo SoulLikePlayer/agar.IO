@@ -11,6 +11,7 @@ public class PlayerGroup implements PlayerComponent {
         System.out.println("Ajout d'un composant : " + component);
     }
 
+
     public void removeComponent(PlayerComponent component) {
         components.remove(component);
     }

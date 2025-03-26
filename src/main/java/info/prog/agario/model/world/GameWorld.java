@@ -28,7 +28,7 @@ public class GameWorld {
         generatePellets(NB_PELLETS);
         Random r = new Random();
         for(int i = 0; i < NB_ENEMIES; i++){
-            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10);
+            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10, this);
             enemies.add(enemy);
         }
         //entities.add(EntityFactory.createEntity("cell",100,100,10));
