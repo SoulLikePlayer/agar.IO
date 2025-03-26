@@ -122,11 +122,16 @@ public class GameController {
 
             for (Cell cell : cells) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                    if (entity instanceof Cell || entity instanceof Pellet) {
-                        cell.absorb(entity);
-                        root.getChildren().remove(entity.getShape());
-                        iterator.remove();
-                        absorbedSomething = true;
+                    if (entity instanceof Cell || entity instanceof Pellet || entity instanceof SpecialPellet) {
+                        if (entity instanceof ExplosionPellet){
+                            cell.contactExplosion(entity, root);
+                        }else{
+                            cell.absorb(entity);
+                            root.getChildren().remove(entity.getShape());
+                            iterator.remove();
+                            absorbedSomething = true;
+                        }
+
                         break;
                     }
                 }

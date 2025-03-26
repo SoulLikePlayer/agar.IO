@@ -17,9 +17,11 @@ public class InvisiblePellet extends SpecialPellet {
     @Override
     public void PlayEffect(Cell cell) {
         cell.shape.setFill(Color.TRANSPARENT);
+        cell.shape.setStroke(Color.TRANSPARENT);
         Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(3), e -> {
+                new KeyFrame(Duration.seconds(7), e -> {
                     cell.shape.setFill(cell.getColor());
+                    cell.shape.setStroke(cell.getColor().darker());
                 })
         );
         timeline.play();

@@ -29,14 +29,14 @@ public class GameWorld {
     private final NavigableMap<Integer, String> pelletProbabilities = new TreeMap<>();
 
     private void initializePelletProbabilities() {
-        pelletProbabilities.put(0, "InvisiblePellet");
-        pelletProbabilities.put(0, "DoubleSpeedPellet");
-        pelletProbabilities.put(0, "HalfSpeedPellet");
-        pelletProbabilities.put(0, "DoubleMassPellet");
-        pelletProbabilities.put(0, "HalfMassPellet");
-        pelletProbabilities.put(0, "DoubleGainPellet");
-        pelletProbabilities.put(0, "HalfGainPellet");
-        pelletProbabilities.put(10, "ExplosionPellet");
+        pelletProbabilities.put(5, "InvisiblePellet");
+        pelletProbabilities.put(10, "DoubleSpeedPellet");
+        pelletProbabilities.put(12, "HalfSpeedPellet");
+        pelletProbabilities.put(13, "DoubleMassPellet");
+        pelletProbabilities.put(14, "HalfMassPellet");
+        pelletProbabilities.put(17, "DoubleGainPellet");
+        pelletProbabilities.put(19, "HalfGainPellet");
+        pelletProbabilities.put(25, "ExplosionPellet");
         pelletProbabilities.put(100, "Pellet");
     }
 
