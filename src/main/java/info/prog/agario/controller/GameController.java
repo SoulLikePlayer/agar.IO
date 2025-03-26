@@ -1,5 +1,7 @@
 package info.prog.agario.controller;
 
+import info.prog.agario.launcher.GameLauncher;
+import info.prog.agario.launcher.Main;
 import info.prog.agario.model.entity.*;
 import info.prog.agario.model.entity.ai.Enemy;
 import info.prog.agario.model.entity.player.Cell;
@@ -7,12 +9,18 @@ import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
 import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.AnimationTimer;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
+import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -25,6 +33,8 @@ public class GameController {
     private long lastUpdate = 0;
     private static final long UPDATE_INTERVAL = 16_000_000;
     private double mouseX, mouseY;
+
+    private boolean gameOverAlertShown = false;
 
     public GameController(GameWorld world, Pane root) {
         this.world = world;
@@ -116,6 +126,7 @@ public class GameController {
         PlayerGroup playerGroup = player.getPlayerGroup();
         List<Cell> cells = playerGroup.getCells();
         boolean absorbedSomething = false;
+        boolean isDead = false;
         List<GameEntity> entitiesToRemove = new ArrayList<>();
         List<Enemy> enemiesToRemove = new ArrayList<>();
 
@@ -210,6 +221,34 @@ public class GameController {
         if (absorbedSomething) {
             //System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
+        }
+        if (playerGroup.getCells().isEmpty() && !gameOverAlertShown) {
+            gameOverAlertShown = true;
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("La partie est terminée !");
+                alert.setHeaderText("Vous avez perdu !");
+                alert.setContentText("Vous avez été mangé par un ennemi !");
+                ButtonType btnPlayAgain = new ButtonType("Rejouer");
+                ButtonType btnLeave = new ButtonType("Quitter");
+                alert.getButtonTypes().setAll(btnPlayAgain, btnLeave);
+                alert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType == btnPlayAgain) {
+                        Platform.runLater(() -> {
+                            try {
+                                Stage primaryStage = new Stage();
+                                new GameLauncher().start(primaryStage);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                        Stage currentStage = (Stage) root.getScene().getWindow();
+                        currentStage.close();
+                    } else if (buttonType == btnLeave) {
+                        System.exit(0);
+                    }
+                });
+            });
         }
 
         //System.out.println("Masse : " + player.getPlayerGroup().getCells().get(0).getMass());
