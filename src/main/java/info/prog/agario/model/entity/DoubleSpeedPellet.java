@@ -26,7 +26,7 @@ public class DoubleSpeedPellet extends SpecialPellet{
 
             System.out.println(cell.GetSpeedMultiplier());
             Timeline timeline = new Timeline(
-                    new KeyFrame(Duration.seconds(3), e -> {
+                    new KeyFrame(Duration.seconds(5), e -> {
                         cell.setSpeedMultiplier(tmp);
                         isOnEffect = false;
                         System.out.println(cell.GetSpeedMultiplier());

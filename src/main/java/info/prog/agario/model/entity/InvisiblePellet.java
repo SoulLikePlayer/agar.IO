@@ -20,7 +20,7 @@ public class InvisiblePellet extends SpecialPellet {
         cell.shape.setFill(Color.TRANSPARENT);
         cell.shape.setStroke(Color.TRANSPARENT);
         Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(7), e -> {
+                new KeyFrame(Duration.seconds(5), e -> {
                     cell.shape.setFill(cell.getColor());
                     cell.shape.setStroke(cell.getColor().darker());
                 })

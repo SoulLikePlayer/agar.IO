@@ -13,7 +13,7 @@ import javafx.util.Duration;
 import info.prog.agario.model.world.MiniMap;
 import info.prog.agario.model.world.GameWorld;
 
-public class GameView {
+public class GameView implements EffectListener {
     private Scene scene;
     private Pane mainRoot;
     private Pane root;
@@ -29,6 +29,7 @@ public class GameView {
         root = new Pane();
         world = new GameWorld(pseudo);
         controller = new GameController(world, root);
+        controller.setEffectListener(this); // Définir GameView comme écouteur d'effet
         scene = new Scene(mainRoot, 800, 600);
         miniMap = new MiniMap(world.getEntities(), world.getPlayer());
         controller.initialize();
@@ -38,21 +39,10 @@ public class GameView {
         effectsList = FXCollections.observableArrayList();
         listView.setItems(effectsList);
 
-        //miniMap.setLayoutX(scene.getWidth() - 210); // Décalage pour qu'elle reste visible
-        //miniMap.setLayoutY(scene.getHeight() - 210);
-
-// Position de la ListView en haut à droite
-        //listView.setLayoutX(scene.getWidth() - 200);
-        //listView.setLayoutY(10);
-        //listView.setPrefWidth(180);
-        //listView.setPrefHeight(100);
-
         miniMap.updateEntities(world.getEntities(), world.getPlayer());
         mainRoot.getChildren().add(root);
         mainRoot.getChildren().add(miniMap);
         mainRoot.getChildren().add(listView);
-
-
 
         new AnimationTimer() {
             @Override
@@ -62,7 +52,9 @@ public class GameView {
         }.start();
     }
 
-    public void addEffect(String effect, int duration) {
+    @Override
+    public void onEffectActivated(String effect, int duration) {
+        // Ajouter l'effet à la liste
         effectsList.add(effect);
 
         // Supprime l'effet après 'duration' secondes

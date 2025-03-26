@@ -6,19 +6,19 @@ import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
 import info.prog.agario.model.entity.player.PlayerGroup;
+import info.prog.agario.view.EffectListener;
 import javafx.animation.AnimationTimer;
+import javafx.scene.layout.Pane;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
 
-public class GameController {
+import java.util.*;
+
+public class GameController implements EffectListener {
+
     private GameWorld world;
     private Pane root;
     private Camera camera;
@@ -26,20 +26,33 @@ public class GameController {
     private static final long UPDATE_INTERVAL = 16_000_000;
     private double mouseX, mouseY;
 
+    private EffectListener effectListener;
+
+    private Map<Class<? extends GameEntity>, String> pelletEffects = new HashMap<>();
+
     public GameController(GameWorld world, Pane root) {
         this.world = world;
         this.root = root;
         this.camera = new Camera(root, world.getPlayer());
+
+        // Initialiser la map avec les effets associés à chaque type de Pellet
+        pelletEffects.put(InvisiblePellet.class, "Invisible Mode");
+        pelletEffects.put(HalfSpeedPellet.class, "HalfSpeed Mode");
+        pelletEffects.put(DoubleSpeedPellet.class, "DoubleSpeed Mode");
+        pelletEffects.put(HalfGainPellet.class, "HalfGain Mode");
+        pelletEffects.put(DoubleGainPellet.class, "DoubleGain Mode");
+        pelletEffects.put(DoubleMassPellet.class, "DoubleMass Mode");
+        pelletEffects.put(HalfMassPellet.class, "HalfMass Mode");
     }
 
     public void initialize() {
         for (GameEntity entity : world.getEntities()) {
-            if(entity instanceof Pellet) {
+            if (entity instanceof Pellet) {
                 root.getChildren().add(entity.getShape());
             }
         }
         for (Enemy e : world.getEnemies()) {
-            for(Cell cell : e.getEnemyGroup().getCells()) {
+            for (Cell cell : e.getEnemyGroup().getCells()) {
                 root.getChildren().add(cell.getShape());
             }
         }
@@ -127,23 +140,22 @@ public class GameController {
             for (Cell playerCell : playerGroup.getCells()) {
                 if (playerCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     System.out.println("Player -> qqch");
-                    if (entity instanceof Pellet|| entity instanceof Cell || entity instanceof SpecialPellet) {
-                        if (entity instanceof ExplosionPellet /*&& intersectionPercentage(playerCell,((Cell) entity)) > 33*/){
-                            System.out.println("Player -> Explosion Pellet");
+                    if (entity instanceof Pellet || entity instanceof Cell || entity instanceof SpecialPellet) {
+                        // Vérifier si l'entité a un effet associé dans la map
+                        String effect = pelletEffects.get(entity.getClass());
+                        if (effect != null && effectListener != null) {
+                            effectListener.onEffectActivated(effect, 5);
+                        }
+                        if (entity instanceof ExplosionPellet) {
                             playerCell.contactExplosion(entity, root);
-                        }else{
-                            System.out.println("Player -> Absorbable Pellet");
+                        }else {
                             playerCell.absorbPellet(entity);
                             entitiesToRemove.add(entity);
                             absorbedSomething = true;
+                            entitiesToRemove.add(entity);
                         }
+
                         break;
-                    } else if (entity instanceof Cell) {
-                        System.out.println("Player -> Enemy or Enemy Spawn Point");
-                    } else if (entity instanceof Enemy) {
-                        System.out.println("Player -> Enemy Cell or Enemy Cell Spawn Point");
-                        entitiesToRemove.add(entity);
-                        //enemiesToRemove.add(entity);
                     }
                 }
             }
@@ -182,11 +194,11 @@ public class GameController {
                 }
                 for (GameEntity entity : world.getEntities()) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                        if (entity instanceof Pellet|| entity instanceof Cell || entity instanceof SpecialPellet) {
-                            if (entity instanceof ExplosionPellet /*&& intersectionPercentage(enemyCell,((Cell) entity)) > 33*/){
+                        if (entity instanceof Pellet || entity instanceof Cell || entity instanceof SpecialPellet) {
+                            if (entity instanceof ExplosionPellet){
                                 System.out.println("Player -> Explosion Pellet");
                                 enemyCell.contactExplosion(entity, root);
-                            }else{
+                            } else {
                                 System.out.println("Player -> Absorbable Pellet");
                                 enemyCell.absorbPellet(entity);
                                 entitiesToRemove.add(entity);
@@ -199,32 +211,31 @@ public class GameController {
             }
         }
 
+        // Suppression des entités absorbées
         for (GameEntity entityToRemove : entitiesToRemove) {
             if(entityToRemove instanceof Cell){
-                playerGroup.removeComponent((Cell)entityToRemove);
+                playerGroup.removeComponent((Cell) entityToRemove);
                 for (Enemy e : world.getEnemies()) {
-                e.getEnemyGroup().removeComponent((Cell) entityToRemove);
+                    e.getEnemyGroup().removeComponent((Cell) entityToRemove);
                 }
             }
             world.getEntities().remove(entityToRemove);
-            //System.out.println("Toutes les entités : " + world.getEntities().size());
             root.getChildren().remove(entityToRemove.getShape());
         }
 
+        // Suppression des ennemis
         for(Enemy enemyToRemove : enemiesToRemove){
             world.getEnemies().remove(enemyToRemove);
             root.getChildren().remove(enemyToRemove.getShape());
         }
+
         smallestInFront();
 
         if (absorbedSomething) {
             System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
         }
-
-        //System.out.println("Masse : " + player.getPlayerGroup().getCells().get(0).getMass());
     }
-
 
     private void smallestInFront(){
         List<Cell> cells = new ArrayList<>(world.getPlayer().getPlayerGroup().getCells());
@@ -264,4 +275,12 @@ public class GameController {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
+    @Override
+    public void onEffectActivated(String effect, int duration) {
+        // Logique pour activer l'effet
+    }
+
+    public void setEffectListener(EffectListener listener) {
+        this.effectListener = listener;
+    }
 }

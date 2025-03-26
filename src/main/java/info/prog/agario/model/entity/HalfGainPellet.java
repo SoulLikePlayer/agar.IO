@@ -18,7 +18,7 @@ public class HalfGainPellet extends SpecialPellet{
         cell.setMultiplicatorGain(0.5);
         System.out.println(cell.getMultiplicatorGain());
         Timeline timeline = new Timeline(
-                new KeyFrame(Duration.seconds(20), e -> {
+                new KeyFrame(Duration.seconds(5), e -> {
                     cell.setMultiplicatorGain(1);
                     System.out.println(cell.getMultiplicatorGain());
                 })
