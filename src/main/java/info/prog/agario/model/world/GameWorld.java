@@ -20,9 +20,9 @@ public class GameWorld {
         this.isOnline = isOnline;
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
+        player = new Player(300, 400, 10, pseudo);
 
-        if (!isOnline) { // Mode local : on génère le joueur et les pastilles
-            player = new Player(300, 400, 10, pseudo);
+        if (!isOnline) {
             System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
             generatePellets(200);
         }

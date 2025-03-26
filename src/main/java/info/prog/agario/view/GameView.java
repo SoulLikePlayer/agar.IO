@@ -25,14 +25,18 @@ public class GameView {
         this.client = client;
         this.isOnline = (client != null);
         root = new Pane();
-        world = new GameWorld(pseudo);
+        world = new GameWorld(pseudo, isOnline);
         controller = new GameController(world, root);
         scene = new Scene(root, 800, 600);
-        controller.initialize();
-
-        if (isOnline) {
-            startListening();
+        if(!isOnline){
+            controller.initialize();
         }
+        else{
+            startListening();
+            //controller.initialize();
+        }
+
+
     }
 
     private void startListening() {
@@ -41,18 +45,38 @@ public class GameView {
                 while (true) {
                     String update = client.receiveUpdate();
 
-                    System.out.println(update);
+                    System.out.println("Reçu du serveur : " + update);
 
                     if (update.startsWith("INIT:")) {
                         Platform.runLater(() -> initializeWorld(update));
                     } else if (update.startsWith("UPDATE:")) {
                         Platform.runLater(() -> updateWorld(update));
+                    } else if(update.startsWith("NEW_PLAYER:")) {
+                        Platform.runLater(() -> addNewPlayer(update));
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }).start();
+    }
+
+    public void addNewPlayer(String data){
+        String[] entities = data.substring(11).split(";");
+        for (String entityData : entities) {
+            System.out.println(entityData);
+            String[] parts = entityData.split(",");
+            if(parts.length == 5){
+                String type = parts[0];
+                double x = Double.parseDouble(parts[2]);
+                double y = Double.parseDouble(parts[3]);
+                double radius = Double.parseDouble(parts[4]);
+
+                GameEntity entity = EntityFactory.createEntity(type, x, y, radius);
+                world.addEntity(entity);
+                root.getChildren().add(entity.getShape());
+            }
+        }
     }
 
     private void initializeWorld(String initData) {
@@ -71,6 +95,7 @@ public class GameView {
                 GameEntity entity = EntityFactory.createEntity(type, x, y, radius);
                 world.addEntity(entity);
                 root.getChildren().add(entity.getShape());
+                System.out.println("Ajout de l'entiré : "+ type + " à " + x + "," + y);
             }
         }
     }

@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 
 public class EntityFactory {
     public static GameEntity createEntity(String type, double x, double y, double param) {
+        System.out.println("création de :"+type);
         switch (type.toLowerCase()) {
             case "pellet":
                 return new Pellet(x, y);

@@ -55,9 +55,10 @@ public class GameLauncher extends Application {
                 e.printStackTrace();
             }
             return;
+        }else {
+            GameView gameView = new GameView(pseudo);
+            stage.setScene(gameView.getScene());
+            stage.setTitle("Agar.io - " + pseudo + " (Local)");
         }
-        GameView gameView = new GameView(pseudo);
-        stage.setScene(gameView.getScene());
-        stage.setTitle("Agar.io - " + pseudo);
     }
 }

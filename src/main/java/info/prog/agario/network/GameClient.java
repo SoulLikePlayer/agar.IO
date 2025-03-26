@@ -30,7 +30,8 @@ public class GameClient {
     }
 
     public String receiveUpdate() throws IOException{
-        return in.readLine();
+        String message = in.readLine();
+        return message.trim();
     }
 
     public int getPlayerId(){
