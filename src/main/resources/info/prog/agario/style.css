@@ -1,0 +1,30 @@
+/* Style pour la ListView */
+.list-view {
+    -fx-background-color: #2c2f38;  /* Fond sombre */
+    -fx-border-color: #444;         /* Bordure fine et sombre */
+    -fx-border-width: 1px;
+    -fx-background-insets: 0;
+    -fx-padding: 10px;
+    -fx-text-fill: #f5f5f5;         /* Texte clair */
+    -fx-font-size: 14px;
+    -fx-font-family: "Segoe UI", sans-serif;
+}
+
+/* Style pour les éléments de la liste */
+.list-view .list-cell {
+    -fx-background-color: #3a3f47;  /* Fond des éléments */
+    -fx-background-insets: 0;
+    -fx-padding: 10px;
+    -fx-text-fill: #d1d1d1;         /* Texte gris clair */
+}
+
+/* Survol des éléments */
+.list-view .list-cell:hover {
+    -fx-background-color: #50575d;  /* Fond légèrement plus clair au survol */
+    -fx-text-fill: #ffffff;         /* Texte blanc au survol */
+}
+
+/* Style lorsque la ListView est vide */
+.list-view:empty {
+    -fx-background-color: transparent; /* Pas de fond quand la liste est vide */
+}
