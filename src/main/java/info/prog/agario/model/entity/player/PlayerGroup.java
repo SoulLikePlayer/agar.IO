@@ -57,14 +57,14 @@ public class PlayerGroup implements PlayerComponent {
                         cell.merge(other);
                         break;
                     } else {
-                        repelCells(cell, (Cell) other);
+                        //repelCells(cell, (Cell) other);
                     }
                 }
             }
         }
     }
 
-    private void repelCells(Cell c1, Cell c2) {
+    /*private void repelCells(Cell c1, Cell c2) {
         double dx = c2.getX() - c1.getX();
         double dy = c2.getY() - c1.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
@@ -81,7 +81,7 @@ public class PlayerGroup implements PlayerComponent {
 
             c1.move(-repelX * influence, -repelY * influence);
         }
-    }
+    }*/
 
 
     public List<PlayerComponent> getComponents() {

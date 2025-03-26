@@ -100,6 +100,16 @@ public class GameController {
                 double dy = mouseY - cell.getShape().getCenterY();
                 double distance = Math.sqrt(dx * dx + dy * dy);
 
+                /*for(Cell c1 : playerGroup.getCells()) {
+                    for(Cell c2 : playerGroup.getCells()) {
+                        if(!(c1.equals(c2))) {
+                            if (distance < (c1.getRadius() + c2.getRadius())) {
+                                distance -= Math.sqrt((c1.getX() - c2.getX()) * (c1.getX() - c2.getX()) + (c1.getY() - c2.getY()) * (c1.getY() - c2.getY()));
+                            }
+                        }
+                    }
+                }*/
+
                 if (distance > 1) {
                     double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
                     cell.setVelocity(dx / distance * speed, dy / distance * speed);
