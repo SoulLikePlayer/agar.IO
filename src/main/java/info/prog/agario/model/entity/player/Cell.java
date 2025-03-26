@@ -60,6 +60,8 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.setMass(mass);
         this.color = color;
         this.shape.setFill(color);
+        this.shape.setStroke(color.darker());
+        this.shape.setStrokeWidth(3);
         this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
         System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
@@ -113,27 +115,27 @@ public class Cell extends GameEntity implements PlayerComponent {
     }
 
     @Override
-    public void divide() {
-        if (mass < 20) return;
+    public PlayerComponent divide() {
+        if (mass >= 20) {
 
-        double newMass = this.mass / 2;
+            double newMass = this.mass / 2;
 
-        this.setMass(newMass);
+            this.setMass(newMass);
 
-        Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
+            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
 
-        newCell.updateSpeed();
+            newCell.updateSpeed();
 
-        newCell.isBoosted = true;
-        newCell.boostStartTime = System.currentTimeMillis();
-        newCell.speedMultiplier *= BOOST_MULTIPLIER;
+            newCell.isBoosted = true;
+            newCell.boostStartTime = System.currentTimeMillis();
+            newCell.speedMultiplier *= BOOST_MULTIPLIER;
 
-        this.lastDivisionTime = System.currentTimeMillis();
-        newCell.lastDivisionTime = this.lastDivisionTime;
+            this.lastDivisionTime = System.currentTimeMillis();
+            newCell.lastDivisionTime = this.lastDivisionTime;
 
-        if (parentGroup != null) {
-            parentGroup.addComponent(newCell);
+            return newCell;
         }
+        return null;
     }
 
     public void updateSpeed() {
@@ -149,8 +151,11 @@ public class Cell extends GameEntity implements PlayerComponent {
 
         if (!canMerge(otherCell)) return;
 
+        if (!(this.getShape().getBoundsInParent().intersects(((Cell)other).getShape().getBoundsInParent()))) return;
+
         this.mass += otherCell.getMass();
-        this.radius.set(10 * Math.sqrt(mass));
+        this.setMass(this.mass);
+
         this.updateSpeed();
 
         if (parentGroup != null) {
@@ -160,8 +165,11 @@ public class Cell extends GameEntity implements PlayerComponent {
         if (otherCell.getShape().getParent() != null) {
             ((Pane) otherCell.getShape().getParent()).getChildren().remove(otherCell.getShape());
         }
+
+        this.lastDivisionTime = System.currentTimeMillis();
+
         AnimationUtils.playGrowAnimation(this.shape);
-        System.out.println("Fusion effectuée !");
+        System.out.println("Fusion effectuée ! Nouvelle masse : " + this.mass);
     }
 
 
@@ -169,11 +177,12 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     public boolean canMerge(Cell other) {
         long currentTime = System.currentTimeMillis();
-        long elapsedTime = currentTime - this.lastDivisionTime;
+        long elapsedTimeThis = currentTime - this.lastDivisionTime;
+        long elapsedTimeOther = currentTime - other.lastDivisionTime;
 
         double requiredTime = MERGE_TIME + this.mass / 100.0;
 
-        return elapsedTime >= requiredTime;
+        return elapsedTimeThis >= requiredTime && elapsedTimeOther >= requiredTime;
     }
 
     @Override

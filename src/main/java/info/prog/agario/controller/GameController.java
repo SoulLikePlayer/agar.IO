@@ -13,8 +13,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
-
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 public class GameController {
@@ -78,6 +79,7 @@ public class GameController {
                 }
             }
         }
+        smallestInFront();
     }
 
     private void handleMouseMovement(MouseEvent event) {
@@ -99,7 +101,7 @@ public class GameController {
                 double distance = Math.sqrt(dx * dx + dy * dy);
 
                 if (distance > 1) {
-                    double speed = Math.max(5.0, 5.0 / Math.sqrt(cell.getMass()));
+                    double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
                     cell.setVelocity(dx / distance * speed, dy / distance * speed);
                     cell.move(dx / distance * speed, dy / distance * speed);
                 }
@@ -118,15 +120,7 @@ public class GameController {
         List<Enemy> enemiesToRemove = new ArrayList<>();
 
         for (int i = 0; i < cells.size(); i++) {
-            for (int j = i + 1; j < cells.size(); j++) {
-                Cell cell1 = cells.get(i);
-                Cell cell2 = cells.get(j);
-
-                if (cell1.canMerge(cell2) && cell1.getShape().getBoundsInParent().intersects(cell2.getShape().getBoundsInParent())) {
-                    cell1.merge(cell2);
-                    break;
-                }
-            }
+            playerGroup.merge(cells.get(i));
         }
 
         for (GameEntity entity : world.getEntities()) {
@@ -211,12 +205,23 @@ public class GameController {
             world.getEnemies().remove(enemyToRemove);
             root.getChildren().remove(enemyToRemove.getShape());
         }
+        smallestInFront();
 
         if (absorbedSomething) {
+            System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
         }
 
         //System.out.println("Masse : " + player.getPlayerGroup().getCells().get(0).getMass());
+    }
+
+
+    private void smallestInFront(){
+        List<Cell> cells = new ArrayList<>(world.getPlayer().getPlayerGroup().getCells());
+        cells.sort(Comparator.comparing(Cell::getMass).reversed());
+        for (Cell cell : cells) {
+            cell.getShape().toFront();
+        }
     }
 
     public static double intersectionPercentage(Cell c1, Cell c2) {
