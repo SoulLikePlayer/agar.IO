@@ -80,4 +80,19 @@ public class QuadTree {
         return found;
     }
 
+    public void remove(GameEntity entity) {
+        if (!boundary.contains(entity.getX(), entity.getY())) {
+            return;
+        }
+
+        entities.remove(entity);
+
+        if (divided) {
+            northeast.remove(entity);
+            northwest.remove(entity);
+            southeast.remove(entity);
+            southwest.remove(entity);
+        }
+    }
+
 }

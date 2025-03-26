@@ -116,19 +116,17 @@ public class GameController {
 
         boolean absorbedSomething = false;
 
-        Iterator<GameEntity> iterator = world.getEntities().iterator();
-        while (iterator.hasNext()) {
-            GameEntity entity = iterator.next();
+        for (Cell cell : cells) {
+            double searchRadius = cell.getRadius();
+            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius);
 
-            for (Cell cell : cells) {
-                if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                    if (entity instanceof Cell || entity instanceof Pellet) {
-                        cell.absorb(entity);
-                        root.getChildren().remove(entity.getShape());
-                        iterator.remove();
-                        absorbedSomething = true;
-                        break;
-                    }
+            for (GameEntity entity : nearbyEntities) {
+                if (entity instanceof Pellet && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                    cell.absorb(entity);
+                    root.getChildren().remove(entity.getShape());
+                    world.getQuadTree().remove(entity);
+                    absorbedSomething = true;
+                    break;
                 }
             }
         }
