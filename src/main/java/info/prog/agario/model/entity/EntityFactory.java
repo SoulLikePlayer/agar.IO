@@ -7,7 +7,7 @@ public class EntityFactory {
     public static GameEntity createEntity(String type, double x, double y, double param) {
         switch (type.toLowerCase()) {
             case "pellet":
-                return new Pellet(x, y);
+                return new Pellet(x, y, 5);
             case "invisiblepellet":
                 return new InvisiblePellet(x, y);
             case "doublespeedpellet":

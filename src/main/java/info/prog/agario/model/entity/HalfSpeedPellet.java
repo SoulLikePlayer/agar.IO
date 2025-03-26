@@ -1,10 +1,10 @@
 package info.prog.agario.model.entity;
 
 import info.prog.agario.model.entity.player.Cell;
+import info.prog.agario.view.GameView;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class HalfSpeedPellet extends SpecialPellet{
@@ -14,6 +14,7 @@ public class HalfSpeedPellet extends SpecialPellet{
         super(x, y);
         isOnEffect = false;
     }
+
 
     @Override
     public void PlayEffect(Cell cell) {

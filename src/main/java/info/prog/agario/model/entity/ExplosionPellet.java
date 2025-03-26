@@ -4,6 +4,7 @@ import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
 import info.prog.agario.model.entity.player.PlayerGroup;
+import info.prog.agario.view.GameView;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -32,6 +33,8 @@ public class ExplosionPellet extends SpecialPellet {
     public void PlayEffect(Cell cell) {
 
     }
+
+
 
 
     public void divideParentGroup(PlayerGroup playerGroup){

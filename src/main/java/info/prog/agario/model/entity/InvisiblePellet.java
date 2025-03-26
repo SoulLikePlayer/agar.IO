@@ -1,6 +1,7 @@
 package info.prog.agario.model.entity;
 
 import info.prog.agario.model.entity.player.Cell;
+import info.prog.agario.view.GameView;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.layout.Pane;
@@ -26,6 +27,8 @@ public class InvisiblePellet extends SpecialPellet {
         );
         timeline.play();
     }
+
+
 
     @Override
     public void ExplosionEffect(Cell cell, Pane root) {

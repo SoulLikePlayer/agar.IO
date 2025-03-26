@@ -127,8 +127,8 @@ public class GameController {
             for (Cell playerCell : playerGroup.getCells()) {
                 if (playerCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     System.out.println("Player -> qqch");
-                    if (entity instanceof Pellet || entity instanceof SpecialPellet) {
-                        if (entity instanceof ExplosionPellet){
+                    if (entity instanceof Pellet|| entity instanceof Cell || entity instanceof SpecialPellet) {
+                        if (entity instanceof ExplosionPellet /*&& intersectionPercentage(playerCell,((Cell) entity)) > 33*/){
                             System.out.println("Player -> Explosion Pellet");
                             playerCell.contactExplosion(entity, root);
                         }else{
@@ -182,11 +182,16 @@ public class GameController {
                 }
                 for (GameEntity entity : world.getEntities()) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                        if (entity instanceof Pellet) {
-                            System.out.println("Enemy -> Pellet");
-                            enemyCell.absorbPellet(entity);
-                            entitiesToRemove.add(entity);
-                            absorbedSomething = true;
+                        if (entity instanceof Pellet|| entity instanceof Cell || entity instanceof SpecialPellet) {
+                            if (entity instanceof ExplosionPellet /*&& intersectionPercentage(enemyCell,((Cell) entity)) > 33*/){
+                                System.out.println("Player -> Explosion Pellet");
+                                enemyCell.contactExplosion(entity, root);
+                            }else{
+                                System.out.println("Player -> Absorbable Pellet");
+                                enemyCell.absorbPellet(entity);
+                                entitiesToRemove.add(entity);
+                                absorbedSomething = true;
+                            }
                             break;
                         }
                     }

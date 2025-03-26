@@ -20,36 +20,36 @@ public class GameWorld {
     private List<GameEntity> entities;
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<>();
-    private int nbEnnemies = 5;
+    private int nbEnnemies = 1;
 
     public GameWorld(String pseudo) {
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(1000, 1000, 1, pseudo);
+        player = new Player(1000, 1000, 10, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         Random r = new Random();
         for(int i = 0; i < nbEnnemies; i++){
-            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10);
+            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 50);
             enemies.add(enemy);
             entities.add(enemy);
         }
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
-        generatePellets(200);
+        generatePellets(500);
     }
 
 
-    private final NavigableMap<Integer, String> pelletProbabilities = new TreeMap<>();
+    private final NavigableMap<Double, String> pelletProbabilities = new TreeMap<>();
 
     private void initializePelletProbabilities() {
-        pelletProbabilities.put(5, "InvisiblePellet");
-        pelletProbabilities.put(10, "DoubleSpeedPellet");
-        pelletProbabilities.put(12, "HalfSpeedPellet");
-        pelletProbabilities.put(13, "DoubleMassPellet");
-        pelletProbabilities.put(14, "HalfMassPellet");
-        pelletProbabilities.put(17, "DoubleGainPellet");
-        pelletProbabilities.put(19, "HalfGainPellet");
-        pelletProbabilities.put(25, "ExplosionPellet");
-        pelletProbabilities.put(100, "Pellet");
+        pelletProbabilities.put(0.5, "InvisiblePellet");
+        pelletProbabilities.put(1.0, "DoubleSpeedPellet");
+        pelletProbabilities.put(1.5, "HalfSpeedPellet");
+        pelletProbabilities.put(2.0, "DoubleMassPellet");
+        pelletProbabilities.put(2.25, "HalfMassPellet");
+        pelletProbabilities.put(2.5, "DoubleGainPellet");
+        pelletProbabilities.put(3.0, "HalfGainPellet");
+        pelletProbabilities.put(4.5, "ExplosionPellet");
+        pelletProbabilities.put(100., "Pellet");
     }
 
     private void generatePellets(int count) {
@@ -59,9 +59,9 @@ public class GameWorld {
         }
 
         for (int i = 0; i < count; i++) {
-            int rank = random.nextInt(100);
+            double rank = random.nextDouble(100);
             String type = pelletProbabilities.ceilingEntry(rank).getValue();
-            GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * 2000, random.nextDouble() * 2000, 0);
+            GameEntity pellet = EntityFactory.createEntity("HalfSpeedPellet", random.nextDouble() * 2000, random.nextDouble() * 2000, 0);
             entities.add(pellet);
             quadTree.insert(pellet);
         }
