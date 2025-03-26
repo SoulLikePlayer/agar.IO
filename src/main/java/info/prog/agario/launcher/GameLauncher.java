@@ -1,6 +1,5 @@
 package info.prog.agario.launcher;
 
-import info.prog.agario.server.GameClient;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
