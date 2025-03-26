@@ -25,9 +25,9 @@ public class GameView {
         world = new GameWorld(pseudo);
         controller = new GameController(world, root);
         scene = new Scene(mainRoot, 800, 600);
+        miniMap = new MiniMap(world.getEntities(), world.getPlayer());
         controller.initialize();
 
-        miniMap = new MiniMap(world.getEntities(), world.getPlayer());
         miniMap.updateEntities(world.getEntities(),world.getPlayer());
         mainRoot.getChildren().add(root);
         mainRoot.getChildren().add(miniMap);
@@ -37,6 +37,7 @@ public class GameView {
                 miniMap.updateEntities(world.getEntities(), world.getPlayer());
             }
         }.start();
+
     }
 
     public Scene getScene() {

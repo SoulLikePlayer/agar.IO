@@ -45,8 +45,4 @@ public class Player {
         return playerGroup.getCells().get(0).getY();
     }
 
-
-
-
-
 }

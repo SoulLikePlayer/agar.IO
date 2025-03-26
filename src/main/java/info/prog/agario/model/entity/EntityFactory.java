@@ -24,7 +24,6 @@ public class EntityFactory {
                 return new HalfMassPellet(x, y);
             case "explosionpellet" :
                 return new ExplosionPellet(x,y);
-
             case "cell":
                 return new Cell(x, y, param, Color.hsb(Math.random() * 360, 0.8, 0.9));
             default:
