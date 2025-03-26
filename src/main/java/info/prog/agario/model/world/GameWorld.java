@@ -21,7 +21,7 @@ public class GameWorld {
     public GameWorld(String pseudo) {
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(1000, 1000, 100000, pseudo);
+        player = new Player(1000, 1000, 1, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         Random r = new Random();
         for(int i = 0; i < nbEnnemies; i++){

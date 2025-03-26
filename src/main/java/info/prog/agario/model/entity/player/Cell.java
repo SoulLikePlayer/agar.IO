@@ -3,7 +3,6 @@ package info.prog.agario.model.entity.player;
 import info.prog.agario.model.entity.GameEntity;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.entity.Pellet;
-import info.prog.agario.model.entity.ai.Enemy;
 import javafx.scene.paint.Color;
 import info.prog.agario.utils.AnimationUtils;
 
@@ -93,12 +92,20 @@ public class Cell extends GameEntity implements PlayerComponent {
         y.setValue(newY);
     }
 
-    public void absorb(GameEntity entity) {
+    public void absorbPellet(GameEntity entity) {
         this.mass += 10;
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
         System.out.println("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
+    }
+
+    public void absorbCell(Cell cell) {
+        this.mass += cell.getMass();
+        this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
+        AnimationUtils.playGrowAnimation(this.shape);
+        System.out.println("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
     }
 
     public void setSpeedMultiplier(double multiplier) {

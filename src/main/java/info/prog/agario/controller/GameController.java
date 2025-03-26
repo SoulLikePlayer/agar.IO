@@ -15,7 +15,6 @@ import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class GameController {
@@ -34,7 +33,9 @@ public class GameController {
 
     public void initialize() {
         for (GameEntity entity : world.getEntities()) {
-            root.getChildren().add(entity.getShape());
+            if(entity instanceof Pellet) {
+                root.getChildren().add(entity.getShape());
+            }
         }
         for (Enemy e : world.getEnemies()) {
             for(Cell cell : e.getEnemyGroup().getCells()) {
@@ -112,6 +113,9 @@ public class GameController {
         Player player = world.getPlayer();
         PlayerGroup playerGroup = player.getPlayerGroup();
         List<Cell> cells = playerGroup.getCells();
+        boolean absorbedSomething = false;
+        List<GameEntity> entitiesToRemove = new ArrayList<>();
+        List<Enemy> enemiesToRemove = new ArrayList<>();
 
         for (int i = 0; i < cells.size(); i++) {
             for (int j = i + 1; j < cells.size(); j++) {
@@ -125,20 +129,22 @@ public class GameController {
             }
         }
 
-        boolean absorbedSomething = false;
-        List<GameEntity> entitiesToRemove = new ArrayList<>();
-        List<Enemy> enemiesToRemove = new ArrayList<>();
-
         for (GameEntity entity : world.getEntities()) {
-            for (Cell cell : playerGroup.getCells()) {
-                if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+            for (Cell playerCell : playerGroup.getCells()) {
+                if (playerCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     System.out.println("Player -> qqch");
                     if (entity instanceof Pellet) {
                         System.out.println("Player -> Pellet");
-                        cell.absorb(entity);
+                        playerCell.absorbPellet(entity);
                         entitiesToRemove.add(entity);
                         absorbedSomething = true;
                         break;
+                    } else if (entity instanceof Cell) {
+                        System.out.println("Player -> Enemy or Enemy Spawn Point");
+                    } else if (entity instanceof Enemy) {
+                        System.out.println("Player -> Enemy Cell or Enemy Cell Spawn Point");
+                        entitiesToRemove.add(entity);
+                        //enemiesToRemove.add(entity);
                     }
                 }
             }
@@ -149,35 +155,37 @@ public class GameController {
                 for (Cell playerCell : playerGroup.getCells()) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(playerCell.getShape().getBoundsInParent())) {
                         System.out.println("Enemy -> touche Joueur");
-                        if (playerCell.getMass() >= enemyCell.getMass() * 1.33) {
-                            System.out.println("Player -> Enemy");
-                            playerCell.absorb(enemyCell);
-                            entitiesToRemove.add(enemyCell);
-                            enemiesToRemove.add(enemy);
-                            absorbedSomething = true;
-                            break;
-                        } else if (enemyCell.getMass() >= playerCell.getMass() * 1.33) {
-                            System.out.println("Enemy -> Player");
-                            enemyCell.absorb(playerCell);
-                            entitiesToRemove.add(playerCell);
-                            absorbedSomething = true;
-                            break;
+                        System.out.println("Overlap : " + intersectionPercentage(playerCell, enemyCell));
+                        if(intersectionPercentage(playerCell, enemyCell) > 33) {
+                            if (playerCell.getMass() >= enemyCell.getMass() * 1.33) {
+                                System.out.println("Player -> Enemy");
+                                playerCell.absorbCell(enemyCell);
+                                entitiesToRemove.add(enemyCell);
+                                enemiesToRemove.add(enemy);
+                                absorbedSomething = true;
+                                break;
+                            } else if (enemyCell.getMass() >= playerCell.getMass() * 1.33) {
+                                System.out.println("Enemy -> Player");
+                                enemyCell.absorbCell(playerCell);
+                                entitiesToRemove.add(playerCell);
+                                absorbedSomething = true;
+                                break;
+                            } else {
+                                System.out.println("on se respecte");
+                            }
+                        } else {
+                            System.out.println("j'ai pas toucheooooooooooooooo");
                         }
-                        System.out.println("on se respecte");
                     }
+                }
+                if(absorbedSomething){
+                    break;
                 }
                 for (GameEntity entity : world.getEntities()) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                        System.out.println("Enemy -> touche");
                         if (entity instanceof Pellet) {
                             System.out.println("Enemy -> Pellet");
-                            enemyCell.absorb(entity);
-                            entitiesToRemove.add(entity);
-                            absorbedSomething = true;
-                            break;
-                        } else if (entity instanceof Cell) {
-                            System.out.println("Enemy -> Cell");
-                            enemyCell.absorb(entity);
+                            enemyCell.absorbPellet(entity);
                             entitiesToRemove.add(entity);
                             absorbedSomething = true;
                             break;
@@ -187,20 +195,58 @@ public class GameController {
             }
         }
 
-        for (GameEntity entity : entitiesToRemove) {
-            world.getEntities().remove(entity);
-            System.out.println("Toutes les entités : " + world.getEntities().size());
-            root.getChildren().remove(entity.getShape());
+        for (GameEntity entityToRemove : entitiesToRemove) {
+            if(entityToRemove instanceof Cell){
+                playerGroup.removeComponent((Cell)entityToRemove);
+                for (Enemy e : world.getEnemies()) {
+                e.getEnemyGroup().removeComponent((Cell) entityToRemove);
+                }
+            }
+            world.getEntities().remove(entityToRemove);
+            //System.out.println("Toutes les entités : " + world.getEntities().size());
+            root.getChildren().remove(entityToRemove.getShape());
         }
 
-        for (Enemy enemy : enemiesToRemove) {
-            world.getEnemies().remove(enemy);
+        for(Enemy enemyToRemove : enemiesToRemove){
+            world.getEnemies().remove(enemyToRemove);
+            root.getChildren().remove(enemyToRemove.getShape());
         }
 
         if (absorbedSomething) {
             camera.update();
         }
+
+        //System.out.println("Masse : " + player.getPlayerGroup().getCells().get(0).getMass());
     }
 
+    public static double intersectionPercentage(Cell c1, Cell c2) {
+        double d = distance(c1.getX(), c1.getY(), c2.getX(), c2.getY());
+
+        if (d > c1.getRadius() + c2.getRadius()) {
+            return 0.0;
+        }
+
+        double r1 = c1.getRadius();
+        double r2 = c2.getRadius();
+        double r1_sq = r1 * r1;
+        double r2_sq = r2 * r2;
+        double d_sq = d * d;
+
+        double part1 = r1_sq * Math.acos((d_sq + r1_sq - r2_sq) / (2 * d * r1));
+        double part2 = r2_sq * Math.acos((d_sq + r2_sq - r1_sq) / (2 * d * r2));
+        double part3 = 0.5 * Math.sqrt((-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2));
+
+        double area1 = Math.PI * Math.pow(c1.getRadius(), 2);
+        double area2 = Math.PI * Math.pow(c2.getRadius(), 2);
+
+        double intersectionArea = part1 + part2 - part3;
+        double maxArea = c1.getRadius() < c2.getRadius() ? area1 : area2;
+
+        return 100.0 * intersectionArea / maxArea;
+    }
+
+    private static double distance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
 
 }
