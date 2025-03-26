@@ -9,6 +9,8 @@ import info.prog.agario.utils.AnimationUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+import static info.prog.agario.controller.GameController.intersectionPercentage;
+
 public class Cell extends GameEntity implements PlayerComponent {
     private double mass;
     private Color color;
@@ -151,7 +153,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
         if (!canMerge(otherCell)) return;
 
-        if (!(this.getShape().getBoundsInParent().intersects(((Cell)other).getShape().getBoundsInParent()))) return;
+        if ((intersectionPercentage(this, (Cell)other) <= 33)) return;
 
         this.mass += otherCell.getMass();
         this.setMass(this.mass);
