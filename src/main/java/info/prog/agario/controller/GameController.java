@@ -12,6 +12,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
+
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
@@ -70,6 +72,7 @@ public class GameController {
                 }
             }
         }
+        smallestInFront();
     }
 
     private void handleMouseMovement(MouseEvent event) {
@@ -116,7 +119,7 @@ public class GameController {
         while (iterator.hasNext()) {
             GameEntity entity = iterator.next();
 
-            for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+            for (Cell cell : cells) {
                 if (cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     if (entity instanceof Cell || entity instanceof Pellet) {
                         cell.absorb(entity);
@@ -128,10 +131,20 @@ public class GameController {
                 }
             }
         }
+        smallestInFront();
 
         if (absorbedSomething) {
             System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
+        }
+    }
+
+
+    private void smallestInFront(){
+        List<Cell> cells = world.getPlayer().getPlayerGroup().getCells();
+        cells.sort(Comparator.comparing(Cell::getMass).reversed());
+        for (Cell cell : cells) {
+            cell.getShape().toFront();
         }
     }
 }
