@@ -36,4 +36,17 @@ public class Player {
     public Text getPseudoText() {
         return pseudoText;
     }
+
+    public double getX() {
+        return playerGroup.getCells().get(0).getX();
+    }
+
+    public double getY() {
+        return playerGroup.getCells().get(0).getY();
+    }
+
+
+
+
+
 }

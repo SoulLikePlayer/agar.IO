@@ -28,4 +28,13 @@ public abstract class GameEntity {
     public Circle getShape() {
         return shape;
     }
+
+    public double getX() {
+        return x.get();
+    }
+
+    public double getY() {
+        return y.get();
+    }
+
 }

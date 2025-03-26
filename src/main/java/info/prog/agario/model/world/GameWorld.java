@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 public class GameWorld {
     private List<GameEntity> entities;
+
     private Player player;
 
     public GameWorld(String pseudo) {
@@ -19,20 +20,21 @@ public class GameWorld {
         player = new Player(300, 400, 10, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         generatePellets(200);
+
     }
 
     private final Random random = new Random();
     private final NavigableMap<Integer, String> pelletProbabilities = new TreeMap<>();
 
     private void initializePelletProbabilities() {
-        pelletProbabilities.put(5, "InvisiblePellet");
-        pelletProbabilities.put(10, "DoubleSpeedPellet");
-        pelletProbabilities.put(15, "HalfSpeedPellet");
-        pelletProbabilities.put(16, "DoubleMassPellet");
-        pelletProbabilities.put(17, "HalfMassPellet");
-        pelletProbabilities.put(20, "DoubleGainPellet");
-        pelletProbabilities.put(23, "HalfGainPellet");
-        pelletProbabilities.put(27, "ExplosionPellet");
+        pelletProbabilities.put(0, "InvisiblePellet");
+        pelletProbabilities.put(0, "DoubleSpeedPellet");
+        pelletProbabilities.put(0, "HalfSpeedPellet");
+        pelletProbabilities.put(0, "DoubleMassPellet");
+        pelletProbabilities.put(0, "HalfMassPellet");
+        pelletProbabilities.put(0, "DoubleGainPellet");
+        pelletProbabilities.put(0, "HalfGainPellet");
+        pelletProbabilities.put(0, "ExplosionPellet");
         pelletProbabilities.put(100, "Pellet"); // Le reste correspond à "normal"
     }
 
@@ -42,7 +44,7 @@ public class GameWorld {
         }
 
         for (int i = 0; i < count; i++) {
-            int rank = random.nextInt(100); // Nombre entre 0 et 99
+            int rank = random.nextInt(100);
             String type = pelletProbabilities.ceilingEntry(rank).getValue();
 
             entities.add(EntityFactory.createEntity(type, random.nextDouble() * 2000, random.nextDouble() * 2000, 0));

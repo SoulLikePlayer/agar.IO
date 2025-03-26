@@ -5,6 +5,7 @@ import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
 import info.prog.agario.model.entity.player.PlayerGroup;
+import info.prog.agario.model.world.MiniMap;
 import javafx.animation.AnimationTimer;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -27,6 +28,10 @@ public class GameController {
         this.world = world;
         this.root = root;
         this.camera = new Camera(root, world.getPlayer());
+    }
+
+    public Camera getCamera(){
+        return camera;
     }
 
     public void initialize() {
@@ -55,6 +60,9 @@ public class GameController {
             }
         };
         timer.start();
+
+
+
     }
 
     private void handleKeyPress(KeyEvent event) {
