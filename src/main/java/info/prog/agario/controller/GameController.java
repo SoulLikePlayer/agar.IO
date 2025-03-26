@@ -1,6 +1,7 @@
 package info.prog.agario.controller;
 
 import info.prog.agario.model.entity.*;
+import info.prog.agario.model.entity.ai.Enemy;
 import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
@@ -12,7 +13,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -37,7 +37,14 @@ public class GameController {
             root.getChildren().add(cell.getShape());
         }
         for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 2 )) {
-            root.getChildren().add(entity.getShape());
+            if(entity instanceof Pellet) {
+                root.getChildren().add(entity.getShape());
+            }
+        }
+        for (Enemy e : world.getEnemies()) {
+            for(Cell cell : e.getEnemyGroup().getCells()) {
+                root.getChildren().add(cell.getShape());
+            }
         }
 
         root.getChildren().add(world.getPlayer().getPseudoText());
@@ -108,12 +115,13 @@ public class GameController {
         Player player = world.getPlayer();
         PlayerGroup playerGroup = player.getPlayerGroup();
         List<Cell> cells = playerGroup.getCells();
+        boolean absorbedSomething = false;
+        List<GameEntity> entitiesToRemove = new ArrayList<>();
+        List<Enemy> enemiesToRemove = new ArrayList<>();
 
         for (int i = 0; i < cells.size(); i++) {
             playerGroup.merge(cells.get(i));
         }
-
-        boolean absorbedSomething = false;
 
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
@@ -121,13 +129,73 @@ public class GameController {
 
             for (GameEntity entity : nearbyEntities) {
                 if (entity instanceof Pellet && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                    cell.absorb(entity);
-                    root.getChildren().remove(entity.getShape());
-                    world.getQuadTree().remove(entity);
+                    cell.absorbPellet(entity);
+                    entitiesToRemove.add(entity);
                     absorbedSomething = true;
                     break;
                 }
             }
+        }
+        for (Enemy enemy : world.getEnemies()) {
+            for (Cell enemyCell : enemy.getEnemyGroup().getCells()) {
+                for (Cell playerCell : playerGroup.getCells()) {
+                    if (enemyCell.getShape().getBoundsInParent().intersects(playerCell.getShape().getBoundsInParent())) {
+                        System.out.println("Enemy -> touche Joueur");
+                        System.out.println("Overlap : " + intersectionPercentage(playerCell, enemyCell));
+                        if(intersectionPercentage(playerCell, enemyCell) > 33) {
+                            if (playerCell.getMass() >= enemyCell.getMass() * 1.33) {
+                                System.out.println("Player -> Enemy");
+                                playerCell.absorbCell(enemyCell);
+                                entitiesToRemove.add(enemyCell);
+                                enemiesToRemove.add(enemy);
+                                absorbedSomething = true;
+                                break;
+                            } else if (enemyCell.getMass() >= playerCell.getMass() * 1.33) {
+                                System.out.println("Enemy -> Player");
+                                enemyCell.absorbCell(playerCell);
+                                entitiesToRemove.add(playerCell);
+                                absorbedSomething = true;
+                                break;
+                            } else {
+                                System.out.println("on se respecte");
+                            }
+                        } else {
+                            System.out.println("j'ai pas toucheooooooooooooooo");
+                        }
+                    }
+                }
+                if(absorbedSomething){
+                    break;
+                }
+                for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 2 )) {
+                    if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                        if (entity instanceof Pellet) {
+                            System.out.println("Enemy -> Pellet");
+                            enemyCell.absorbPellet(entity);
+                            entitiesToRemove.add(entity);
+                            absorbedSomething = true;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        for (GameEntity entityToRemove : entitiesToRemove) {
+            if(entityToRemove instanceof Cell){
+                playerGroup.removeComponent((Cell)entityToRemove);
+                for (Enemy e : world.getEnemies()) {
+                e.getEnemyGroup().removeComponent((Cell) entityToRemove);
+                }
+            }
+            world.getQuadTree().remove(entityToRemove);
+            //System.out.println("Toutes les entités : " + world.getEntities().size());
+            root.getChildren().remove(entityToRemove.getShape());
+        }
+
+        for(Enemy enemyToRemove : enemiesToRemove){
+            world.getEnemies().remove(enemyToRemove);
+            root.getChildren().remove(enemyToRemove.getShape());
         }
         smallestInFront();
 
@@ -145,4 +213,35 @@ public class GameController {
             cell.getShape().toFront();
         }
     }
+
+    public static double intersectionPercentage(Cell c1, Cell c2) {
+        double d = distance(c1.getX(), c1.getY(), c2.getX(), c2.getY());
+
+        if (d > c1.getRadius() + c2.getRadius()) {
+            return 0.0;
+        }
+
+        double r1 = c1.getRadius();
+        double r2 = c2.getRadius();
+        double r1_sq = r1 * r1;
+        double r2_sq = r2 * r2;
+        double d_sq = d * d;
+
+        double part1 = r1_sq * Math.acos((d_sq + r1_sq - r2_sq) / (2 * d * r1));
+        double part2 = r2_sq * Math.acos((d_sq + r2_sq - r1_sq) / (2 * d * r2));
+        double part3 = 0.5 * Math.sqrt((-d + r1 + r2) * (d + r1 - r2) * (d - r1 + r2) * (d + r1 + r2));
+
+        double area1 = Math.PI * Math.pow(c1.getRadius(), 2);
+        double area2 = Math.PI * Math.pow(c2.getRadius(), 2);
+
+        double intersectionArea = part1 + part2 - part3;
+        double maxArea = c1.getRadius() < c2.getRadius() ? area1 : area2;
+
+        return 100.0 * intersectionArea / maxArea;
+    }
+
+    private static double distance(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    }
+
 }
