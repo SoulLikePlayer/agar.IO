@@ -1,5 +1,7 @@
 package info.prog.agario.model.entity.player;
 
+import info.prog.agario.controller.GameController;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,19 +69,25 @@ public class PlayerGroup implements PlayerComponent {
                 }
             }
 
-            if (cell1 != null && cell2 != null && minDistance < (cell1.getRadius() + cell2.getRadius())) {
+            if (cell1 != null && cell2 != null && minDistance < (cell1.getRadius() + cell2.getRadius()) && GameController.intersectionPercentage(cell1, cell2) > 33) {
                 cell1.merge(cell2);
             }
 
             for (int i = 0; i < cells.size(); i++) {
                 for (int j = i + 1; j < cells.size(); j++) {
-                    repelCells(cells.get(i), cells.get(j));
+                    if (cells.get(i) != cells.get(j)) {
+                        repelCells(cells.get(i), cells.get(j));
+                    }
                 }
             }
         }
     }
 
     private void repelCells(Cell c1, Cell c2) {
+        if (c1.canMerge(c2)) {
+            return;
+        }
+
         double dx = c2.getX() - c1.getX();
         double dy = c2.getY() - c1.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
