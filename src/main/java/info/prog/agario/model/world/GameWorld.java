@@ -19,7 +19,7 @@ public class GameWorld {
     private QuadTree quadTree;
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<>();
-    private static final int NB_ENEMIES = 5;
+    private static final int NB_ENEMIES = 16;
 
     private static final int SIZE = 2000;
 
@@ -36,7 +36,7 @@ public class GameWorld {
         }
 
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
-        generatePellets((int)(MAP_SIZE*0.8));
+        generatePellets((int)(8000));
     }
 
 
