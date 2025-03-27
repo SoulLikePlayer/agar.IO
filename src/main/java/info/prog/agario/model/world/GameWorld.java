@@ -15,7 +15,7 @@ public class GameWorld {
     private QuadTree quadTree;
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<>();
-    private static final int NB_ENEMIES = 1;
+    private static final int NB_ENEMIES = 5;
     private static final int SIZE = 2000;
     private static final int NB_PELLETS = 200;
     private int nbEntities = NB_PELLETS;

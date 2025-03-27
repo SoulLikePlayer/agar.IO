@@ -2,6 +2,7 @@ package info.prog.agario.view;
 
 import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.Player;
+import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.scene.layout.Pane;
@@ -10,6 +11,7 @@ import javafx.util.Duration;
 public class Camera {
     private Pane root;
     private Player player;
+    private PlayerGroup group;
     private static final double CAMERA_LERP_FACTOR = 0.1;
     private static final double ZOOM_ANIMATION_DURATION = 0.3;
     private static final double BASE_ZOOM = 1.0;
@@ -18,9 +20,10 @@ public class Camera {
     public Camera(Pane root, Player player) {
         this.root = root;
         this.player = player;
+        this.group = player.getPlayerGroup();
     }
 
-    public void update() {
+    public void smoothCenterOn() {
         double totalX = 0, totalY = 0, totalMass = 0;
         for (Cell cell : player.getPlayerGroup().getCells()) {
             totalX += cell.getShape().getCenterX() * cell.getMass();
@@ -36,14 +39,21 @@ public class Camera {
         root.setScaleX(targetZoom);
         root.setScaleY(targetZoom);
 
-        double averageRadius = Math.sqrt(totalMass) * 10;
-        double centeredX = (400 - centerX) * targetZoom;
-        double centeredY = (300 - centerY) * targetZoom;
+        double currentTranslateX = root.getTranslateX();
+        double currentTranslateY = root.getTranslateY();
+        double targetTranslateX = (root.getWidth() / 2 - centerX) * targetZoom;
+        double targetTranslateY = (root.getHeight() / 2 - centerY) * targetZoom;
 
-        TranslateTransition translateTransition = new TranslateTransition(Duration.seconds(ZOOM_ANIMATION_DURATION), root);
-        translateTransition.setToX(centeredX);
-        translateTransition.setToY(centeredY);
-        translateTransition.play();
+        double lerpX = currentTranslateX + CAMERA_LERP_FACTOR * (targetTranslateX - currentTranslateX);
+        double lerpY = currentTranslateY + CAMERA_LERP_FACTOR * (targetTranslateY - currentTranslateY);
+
+        root.setTranslateX(lerpX);
+        root.setTranslateY(lerpY);
+    }
+
+
+    public void update() {
+        smoothCenterOn();
     }
 
 }

@@ -138,7 +138,6 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
-        //System.out.println("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
     }
 
     public void absorbCell(Cell cell) {
@@ -146,7 +145,6 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
-        System.out.println("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
     }
 
     public void setSpeedMultiplier(double multiplier) {
