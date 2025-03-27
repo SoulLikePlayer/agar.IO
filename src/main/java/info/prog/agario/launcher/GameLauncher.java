@@ -11,10 +11,18 @@ import info.prog.agario.view.GameView;
 import java.util.Random;
 
 public class GameLauncher extends Application {
-    private static final String[] RANDOM_PSEUDOS = {
+    public static final String[] RANDOM_PSEUDOS = {
             "Xx_DarkSasukeDu89_xX", "SeigneurDu98", "Pikachu_Sombre",
             "Naruto_LeBg", "JeanMichel_Gamer", "ProGamer666",
-            "BigChungus2000", "MangeurDeQuiches", "MasterChief_PasContent"
+            "BigChungus2000", "MangeurDeQuiches", "MasterChief_PasContent",
+            "PouletCurry", "LeSangDuDjo", "MasterclassAkhy",
+            "Dragnos", "akraponix", "SoulLikePlayer",
+            "alexis", "nassim", "tom",
+            "Copilot", "Mistral", "Chat",
+            "pouler.fr", "frite.org", "MiamoAlex.net",
+            "Supormoi", "LeRoiDuTennis🎾🔥💪💀", "FeveEnjoyer",
+            "JonasFan42", "MathiasEnjoyer63", "JFanAccount"
+
     };
 
     @Override

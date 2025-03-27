@@ -10,6 +10,7 @@ public class GameView {
     private Pane root;
     private GameWorld world;
     private GameController controller;
+    private Camera camera;
 
     public GameView(String pseudo) {
         root = new Pane();
@@ -17,6 +18,13 @@ public class GameView {
         controller = new GameController(world, root);
         scene = new Scene(root, 1080, 720);
         controller.initialize();
+
+        camera = new Camera(root, world.getPlayer());
+
+        root.widthProperty().addListener((observable, oldValue, newValue) -> camera.update());
+        root.heightProperty().addListener((observable, oldValue, newValue) -> camera.update());
+
+        camera.update();
     }
 
     public Scene getScene() {

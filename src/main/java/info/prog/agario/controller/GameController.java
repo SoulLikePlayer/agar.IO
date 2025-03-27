@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Random;
 
 public class GameController {
-    private static final int TAUX_RESPAWN_ENEMY = 20; //Pourcentage de chance de respawn un ennemi à chaque update
+    private static final int TAUX_RESPAWN_ENEMY = 5; //Pourcentage de chance de respawn un ennemi à chaque update
     private static final int TAUX_RESPAWN_PELLET = 10; //Pourcentage de chance de respawn un pellet à chaque update
     private GameWorld world;
     private Pane root;
@@ -42,8 +42,12 @@ public class GameController {
 
         root.sceneProperty().addListener((obs, oldScene, newScene) -> {
             if (newScene != null) {
-                newScene.widthProperty().addListener((obsWidth, oldWidth, newWidth) -> camera.smoothCenterOn());
-                newScene.heightProperty().addListener((obsHeight, oldHeight, newHeight) -> camera.smoothCenterOn());
+                newScene.widthProperty().addListener((obsWidth, oldWidth, newWidth) -> {
+                    camera.smoothCenterOn();
+                });
+                newScene.heightProperty().addListener((obsHeight, oldHeight, newHeight) -> {
+                    camera.smoothCenterOn();
+                });
             }
         });
     }
@@ -272,7 +276,7 @@ public class GameController {
     }
 
     public void respawnEntities(){
-        if(world.getNbEnemies() > world.getEnemies().size()){
+        if(world.getNbEnemies() < world.getEnemies().size()){
             if(new Random().nextInt(100) < TAUX_RESPAWN_ENEMY) {
                 Random r = new Random();
                 Enemy enemy = new Enemy(r.nextInt((int) (10 * Math.sqrt(world.getPlayer().getPlayerGroup().getCells().get(0).getMass())), world.getSize()), r.nextInt((int) (10 * Math.sqrt(world.getPlayer().getPlayerGroup().getCells().get(0).getMass())), world.getSize()), 10, world);
