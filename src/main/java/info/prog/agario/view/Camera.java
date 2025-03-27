@@ -27,6 +27,7 @@ public class Camera {
             totalY += cell.getShape().getCenterY() * cell.getMass();
             totalMass += cell.getMass();
         }
+
         double centerX = totalX / totalMass;
         double centerY = totalY / totalMass;
 
@@ -47,4 +48,3 @@ public class Camera {
     }
 
 }
-

@@ -22,6 +22,10 @@ public class GameWorld {
     private ArrayList<Enemy> enemies = new ArrayList<>();
     private int nbEnnemies = 1;
 
+    private static final int MAP_SIZE = 8000;
+
+
+
     public GameWorld(String pseudo) {
         entities = new ArrayList<>();
         quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
@@ -34,7 +38,7 @@ public class GameWorld {
             entities.add(enemy);
         }
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
-        generatePellets(500);
+        generatePellets((int)(MAP_SIZE*0.8));
     }
 
 
@@ -61,7 +65,7 @@ public class GameWorld {
         for (int i = 0; i < count; i++) {
             double rank = random.nextDouble(100);
             String type = pelletProbabilities.ceilingEntry(rank).getValue();
-            GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * 2000, random.nextDouble() * 2000, 0);
+            GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * MAP_SIZE, random.nextDouble() * MAP_SIZE, 0);
             entities.add(pellet);
             quadTree.insert(pellet);
         }

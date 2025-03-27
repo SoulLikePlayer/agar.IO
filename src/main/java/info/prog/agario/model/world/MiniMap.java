@@ -9,8 +9,8 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 public class MiniMap extends Canvas {
-    private static final int MAP_SIZE = 2000;
-    private static final int MINI_MAP_SIZE = 150;
+    private static final int MAP_SIZE = 8000;
+    private static final int MINI_MAP_SIZE = 200;
 
     private List<GameEntity> entities;
     private Player player;
@@ -33,13 +33,13 @@ public class MiniMap extends Canvas {
         for (GameEntity entity : entities) {
             int x = (int) (entity.getX() * scale);
             int y = (int) (entity.getY() * scale);
-            gc.fillOval(x, y, 2, 2);
+            gc.fillOval(x, y, 1  , 1);
         }
 
         gc.setFill(Color.BLUE);
         int playerX = (int) (player.getX() * scale);
         int playerY = (int) (player.getY() * scale);
-        gc.fillOval(playerX, playerY, 10, 10);
+        gc.fillOval(playerX, playerY, 5, 5);
     }
 
     public void updateEntities(List<GameEntity> entities, Player player) {

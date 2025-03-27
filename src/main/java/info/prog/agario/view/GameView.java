@@ -31,6 +31,7 @@ public class GameView implements EffectListener {
     public GameView(String pseudo) {
         mainRoot = new Pane();
         root = new Pane();
+        root.setPrefSize(10000, 10000);
         world = new GameWorld(pseudo);
         controller = new GameController(world, root);
         scene = new Scene(mainRoot, 800, 600);
@@ -38,7 +39,7 @@ public class GameView implements EffectListener {
         listView = new ListView<>();
 
         controller.setEffectListener(this);
-        scene.getStylesheets().add(getClass().getResource("/info/prog/agario/view/style.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/style.css").toExternalForm());
         controller.initialize();
         effectsList = FXCollections.observableArrayList();
         listView.setItems(effectsList);
@@ -54,7 +55,7 @@ public class GameView implements EffectListener {
             @Override
             public void handle(MouseEvent mouseEvent) {
                 updateListeViewPlace();
-                System.out.println("***************************************************************");
+
             }
         });
 

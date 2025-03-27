@@ -64,8 +64,8 @@ public class Cell extends GameEntity implements PlayerComponent {
         x.setValue(newX);
         y.setValue(newY);
 
-        velocityX *= 0.95;
-        velocityY *= 0.95;
+        velocityX *= 0.99;
+        velocityY *= 0.99;
 
         if (Math.abs(velocityX) < 0.1) velocityX = 0;
         if (Math.abs(velocityY) < 0.1) velocityY = 0;
@@ -172,7 +172,7 @@ public class Cell extends GameEntity implements PlayerComponent {
     }
 
     public void updateSpeed() {
-        setSpeedMultiplier(Math.max(0.5, 10.0 / Math.sqrt(this.mass)));
+        setSpeedMultiplier(Math.max(1.0, 20.0 / Math.sqrt(this.mass)));
     }
 
 
