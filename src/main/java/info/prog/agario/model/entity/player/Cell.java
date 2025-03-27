@@ -171,7 +171,6 @@ public class Cell extends GameEntity implements PlayerComponent {
 
             this.lastDivisionTime = System.currentTimeMillis();
             newCell.lastDivisionTime = this.lastDivisionTime;
-            System.out.println("--------- New cell pseudo = " + newCell.getPseudo().getText() + " ---------");
             return newCell;
         }
         return null;
@@ -202,8 +201,9 @@ public class Cell extends GameEntity implements PlayerComponent {
         }
 
         if (otherCell.getShape().getParent() != null) {
-            ((Pane) otherCell.getShape().getParent()).getChildren().remove(otherCell.getShape());
-
+            Pane parentPane = (Pane) otherCell.getShape().getParent();
+            parentPane.getChildren().remove(otherCell.getShape());
+            parentPane.getChildren().remove(otherCell.getPseudo());
         }
 
         this.lastDivisionTime = System.currentTimeMillis();
