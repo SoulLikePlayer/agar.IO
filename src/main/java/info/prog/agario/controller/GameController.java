@@ -1,5 +1,6 @@
 package info.prog.agario.controller;
 
+import info.prog.agario.launcher.GameLauncher;
 import info.prog.agario.model.entity.*;
 import info.prog.agario.model.entity.ai.Enemy;
 import info.prog.agario.model.entity.player.Cell;
@@ -7,15 +8,19 @@ import info.prog.agario.model.entity.player.Player;
 import info.prog.agario.model.entity.player.PlayerComponent;
 import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.AnimationTimer;
+import javafx.application.Platform;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
+import javafx.stage.Stage;
+
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 public class GameController {
@@ -26,6 +31,8 @@ public class GameController {
     private static final long UPDATE_INTERVAL = 16_000_000;
     private double mouseX, mouseY;
 
+    private boolean gameOverAlertShown = false;
+
     public GameController(GameWorld world, Pane root) {
         this.world = world;
         this.root = root;
@@ -33,9 +40,6 @@ public class GameController {
     }
 
     public void initialize() {
-        for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
-            root.getChildren().add(cell.getShape());
-        }
         for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 10 )) {
             if(entity instanceof Pellet) {
                 root.getChildren().add(entity.getShape());
@@ -44,10 +48,13 @@ public class GameController {
         for (Enemy e : world.getEnemies()) {
             for(Cell cell : e.getEnemyGroup().getCells()) {
                 root.getChildren().add(cell.getShape());
+                root.getChildren().add(cell.getPseudo());
             }
         }
-
-        root.getChildren().add(world.getPlayer().getPseudoText());
+        for (Cell cell : world.getPlayer().getPlayerGroup().getCells()) {
+            root.getChildren().add(cell.getShape());
+            root.getChildren().add(cell.getPseudo());
+        }
         root.setOnKeyPressed(this::handleKeyPress);
         root.setFocusTraversable(true);
         root.requestFocus();
@@ -75,7 +82,9 @@ public class GameController {
             for (Cell cell : updatedCells) {
                 if (!root.getChildren().contains(cell.getShape())) {
                     root.getChildren().add(cell.getShape());
+                    root.getChildren().add(cell.getPseudo());
                     cell.getShape().toFront();
+                    cell.getPseudo().toFront();
                 }
             }
         }
@@ -100,16 +109,6 @@ public class GameController {
                 double dy = mouseY - cell.getShape().getCenterY();
                 double distance = Math.sqrt(dx * dx + dy * dy);
 
-                /*for(Cell c1 : playerGroup.getCells()) {
-                    for(Cell c2 : playerGroup.getCells()) {
-                        if(!(c1.equals(c2))) {
-                            if (distance < (c1.getRadius() + c2.getRadius())) {
-                                distance -= Math.sqrt((c1.getX() - c2.getX()) * (c1.getX() - c2.getX()) + (c1.getY() - c2.getY()) * (c1.getY() - c2.getY()));
-                            }
-                        }
-                    }
-                }*/
-
                 if (distance > 1) {
                     double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
                     cell.setVelocity(dx / distance * speed, dy / distance * speed);
@@ -126,6 +125,7 @@ public class GameController {
         PlayerGroup playerGroup = player.getPlayerGroup();
         List<Cell> cells = playerGroup.getCells();
         boolean absorbedSomething = false;
+        boolean isDead = false;
         List<GameEntity> entitiesToRemove = new ArrayList<>();
         List<Enemy> enemiesToRemove = new ArrayList<>();
         List<GameEntity> newEntities = new ArrayList<>();
@@ -148,7 +148,6 @@ public class GameController {
                 }
             }
         }
-
 
         for (Enemy enemy : world.getEnemies()) {
             for(Enemy enemy2 : world.getEnemies()){
@@ -220,6 +219,7 @@ public class GameController {
 
         for (GameEntity entityToRemove : entitiesToRemove) {
             if(entityToRemove instanceof Cell){
+                root.getChildren().remove(((Cell) entityToRemove).getPseudo());
                 playerGroup.removeComponent((Cell)entityToRemove);
                 for (Enemy e : world.getEnemies()) {
                     e.getEnemyGroup().removeComponent((Cell) entityToRemove);
@@ -242,8 +242,37 @@ public class GameController {
             System.out.println("Absorption détectée ! Mise à jour du zoom.");
             camera.update();
         }
-    }
+        if (playerGroup.getCells().isEmpty() && !gameOverAlertShown) {
+            gameOverAlertShown = true;
+            Platform.runLater(() -> {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("La partie est terminée !");
+                alert.setHeaderText("Vous avez perdu !");
+                alert.setContentText("Vous avez été mangé par un ennemi !");
+                ButtonType btnPlayAgain = new ButtonType("Rejouer");
+                ButtonType btnLeave = new ButtonType("Quitter");
+                alert.getButtonTypes().setAll(btnPlayAgain, btnLeave);
+                alert.showAndWait().ifPresent(buttonType -> {
+                    if (buttonType == btnPlayAgain) {
+                        Platform.runLater(() -> {
+                            try {
+                                Stage primaryStage = new Stage();
+                                new GameLauncher().start(primaryStage);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                        Stage currentStage = (Stage) root.getScene().getWindow();
+                        currentStage.close();
+                    } else if (buttonType == btnLeave) {
+                        System.exit(0);
+                    }
+                });
+            });
+        }
 
+        //System.out.println("Masse : " + player.getPlayerGroup().getCells().get(0).getMass());
+    }
 
 
     private void smallestInFront(){
@@ -251,6 +280,7 @@ public class GameController {
         cells.sort(Comparator.comparing(Cell::getMass).reversed());
         for (Cell cell : cells) {
             cell.getShape().toFront();
+            cell.getPseudo().toFront();
         }
     }
 

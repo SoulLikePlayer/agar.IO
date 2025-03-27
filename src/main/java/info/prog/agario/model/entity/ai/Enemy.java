@@ -21,7 +21,7 @@ public class Enemy extends GameEntity {
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.enemyGroup = new PlayerGroup();
         this.world = world;
-        Cell firstCell = new Cell(x, y, mass, this.color);
+        Cell firstCell = new Cell(x, y, mass, this.color, "[Bot] Albert");
         firstCell.setParentGroup(this.enemyGroup);
         enemyGroup.addComponent(firstCell);
         Random r = new Random();
