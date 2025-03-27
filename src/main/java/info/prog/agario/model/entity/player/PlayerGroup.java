@@ -30,7 +30,6 @@ public class PlayerGroup implements PlayerComponent {
     @Override
     public PlayerComponent divide() {
         List<PlayerComponent> newCells = new ArrayList<>();
-
         for (PlayerComponent component : new ArrayList<>(components)) {
             PlayerComponent divided = component.divide();
             if (divided instanceof Cell) {

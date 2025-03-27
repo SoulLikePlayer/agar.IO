@@ -1,14 +1,20 @@
 package info.prog.agario.model.entity.player;
 
+import info.prog.agario.model.entity.ExplosionPellet;
 import info.prog.agario.model.entity.GameEntity;
+
+import info.prog.agario.model.entity.SpecialPellet;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import info.prog.agario.utils.AnimationUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 
 public class Cell extends GameEntity implements PlayerComponent {
+    private UUID ID;
     private double mass;
     private Color color;
     private double speedMultiplier;
@@ -18,10 +24,12 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     private static final int MERGE_TIME = 5000;
     private static final int BOOST_DURATION = 1000;
-
+    private double multiplicatorGain;
     private static final int BOOST_MULTIPLIER = 3;
     private boolean isBoosted = false;
     private long boostStartTime;
+
+    private long lastDivisionTime;
 
     public void setParentGroup(PlayerGroup parentGroup) {
         this.parentGroup = parentGroup;
@@ -31,13 +39,23 @@ public class Cell extends GameEntity implements PlayerComponent {
         return parentGroup;
     }
 
-    private long lastDivisionTime;
-
+    public Color getColor() {
+        return color;
+    }
 
     public void setVelocity(double vx, double vy) {
         this.velocityX = vx;
         this.velocityY = vy;
     }
+
+    public double getMultiplicatorGain() {
+        return multiplicatorGain;
+    }
+
+    public void setMultiplicatorGain(double multiplicator) {
+        multiplicatorGain = multiplicator;
+    }
+
 
     public void move() {
         Double newX = shape.getCenterX() + velocityX;
@@ -54,16 +72,25 @@ public class Cell extends GameEntity implements PlayerComponent {
         if (Math.abs(velocityY) < 0.1) velocityY = 0;
     }
 
-    public Cell(double x, double y, double mass, Color color) {
+    public Cell(double x, double y, double mass, Color color, UUID cellID) {
         super(x, y, 10 * Math.sqrt(mass));
+        this.ID = cellID;
         this.setMass(mass);
         this.color = color;
         this.shape.setFill(color);
         this.shape.setStroke(color.darker());
         this.shape.setStrokeWidth(3);
-        this.speedMultiplier = 3;
+        this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
-        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
+        multiplicatorGain = 1;
+    }
+
+    public double getVelocityX() {
+        return velocityX;
+    }
+
+    public double getVelocityY() {
+        return velocityY;
     }
 
     public double getMass() {
@@ -83,6 +110,7 @@ public class Cell extends GameEntity implements PlayerComponent {
             updateSpeed();
             System.out.println("Boost terminé, vitesse normale : " + speedMultiplier);
         }
+        //System.out.println("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
         double newX = shape.getCenterX() + dx * speedMultiplier;
         double newY = shape.getCenterY() + dy * speedMultiplier;
@@ -92,15 +120,35 @@ public class Cell extends GameEntity implements PlayerComponent {
         y.setValue(newY);
     }
 
-    public void absorb(GameEntity entity) {
-        this.mass += 10;
+    public void contactExplosion(GameEntity entity, Pane root){
+        ((SpecialPellet) entity).ExplosionEffect(this, root);
+    }
+
+    public void absorbPellet(GameEntity entity) {
+        if (entity instanceof SpecialPellet) {
+            ((SpecialPellet) entity).PlayEffect(this);
+        }
+        this.mass += entity.getMass() * multiplicatorGain;
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);
+        System.out.println("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc");
+    }
+
+    public void absorbCell(Cell cell) {
+        this.mass += cell.getMass();
+        this.radius.set(10 * Math.sqrt(mass));
+        updateSpeed();
+        AnimationUtils.playGrowAnimation(this.shape);
+        System.out.println("dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd");
     }
 
     public void setSpeedMultiplier(double multiplier) {
         this.speedMultiplier = multiplier;
+    }
+
+    public double GetSpeedMultiplier() {
+        return speedMultiplier;
     }
 
     @Override
@@ -111,7 +159,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
             this.setMass(newMass);
 
-            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
+            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color, UUID.randomUUID());
 
             newCell.updateSpeed();
 
@@ -139,6 +187,8 @@ public class Cell extends GameEntity implements PlayerComponent {
         Cell otherCell = (Cell) other;
 
         if (!canMerge(otherCell)) return;
+
+        if (!(this.getShape().getBoundsInParent().intersects(((Cell)other).getShape().getBoundsInParent()))) return;
 
         this.mass += otherCell.getMass();
         this.setMass(this.mass);
@@ -177,5 +227,13 @@ public class Cell extends GameEntity implements PlayerComponent {
         ArrayList<Cell> lst = new ArrayList();
         lst.add(this);
         return lst;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public UUID getId() {
+        return ID;
     }
 }

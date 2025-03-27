@@ -25,7 +25,14 @@
       <version>22-ea+11</version>
     </dependency>
 
-<dependency>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-graphics</artifactId>
+      <version>17.0.2</version> <!-- Remplace par la version stable -->
+    </dependency>
+
+
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>${junit.version}</version>

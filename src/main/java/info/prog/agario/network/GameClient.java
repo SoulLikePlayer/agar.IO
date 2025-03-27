@@ -16,6 +16,7 @@ public class GameClient {
         socket = new Socket(serverAddress, serverPort);
 
         in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream(), true);
 
         String response = in.readLine();
         if (response.startsWith("ID: ")){
@@ -26,6 +27,7 @@ public class GameClient {
     }
 
     public void sendMessage(String message){
+        System.out.println("message envoyer : "+message);
         out.println(message);
     }
 
