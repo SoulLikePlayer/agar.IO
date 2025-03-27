@@ -50,38 +50,57 @@ public class PlayerGroup implements PlayerComponent {
             }
         } else if (other instanceof Cell) {
             List<Cell> cells = getCells();
+            Cell cell1 = null;
+            Cell cell2 = null;
+            double minDistance = Double.MAX_VALUE;
 
-            for (Cell cell : cells) {
-                if (cell != other) {
-                    if (cell.canMerge((Cell) other)) {
-                        cell.merge(other);
-                        break;
-                    } else {
-                        //repelCells(cell, (Cell) other);
+            for (Cell c1 : cells) {
+                if (c1 != other) {
+                    double dx = c1.getX() - ((Cell) other).getX();
+                    double dy = c1.getY() - ((Cell) other).getY();
+                    double distance = Math.sqrt(dx * dx + dy * dy);
+                    if (distance < minDistance) {
+                        minDistance = distance;
+                        cell1 = c1;
+                        cell2 = (Cell) other;
                     }
+                }
+            }
+
+            if (cell1 != null && cell2 != null && minDistance < (cell1.getRadius() + cell2.getRadius())) {
+                cell1.merge(cell2);
+            }
+
+            for (int i = 0; i < cells.size(); i++) {
+                for (int j = i + 1; j < cells.size(); j++) {
+                    repelCells(cells.get(i), cells.get(j));
                 }
             }
         }
     }
 
-    /*private void repelCells(Cell c1, Cell c2) {
+    private void repelCells(Cell c1, Cell c2) {
         double dx = c2.getX() - c1.getX();
         double dy = c2.getY() - c1.getY();
         double distance = Math.sqrt(dx * dx + dy * dy);
+        double minDistance = c1.getRadius() + c2.getRadius();
 
-        if (distance < (c1.getRadius() + c2.getRadius())) {
-            double repelStrength = 5.0;
+        if (distance < minDistance) {
+            double overlap = minDistance - distance;
+            double repelStrength = 0.5;
 
             double totalMass = c1.getMass() + c2.getMass();
-            double influence = c2.getMass() / totalMass;
+            double influenceC1 = c2.getMass() / totalMass;
+            double influenceC2 = c1.getMass() / totalMass;
 
-            double factor = repelStrength / Math.max(distance, 1);
+            double factor = overlap * repelStrength / Math.max(distance, 1);
             double repelX = dx * factor;
             double repelY = dy * factor;
 
-            c1.move(-repelX * influence, -repelY * influence);
+            c1.move(-repelX * influenceC1, -repelY * influenceC1);
+            c2.move(repelX * influenceC2, repelY * influenceC2);
         }
-    }*/
+    }
 
 
     public List<PlayerComponent> getComponents() {

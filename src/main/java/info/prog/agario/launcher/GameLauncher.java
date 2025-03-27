@@ -21,6 +21,11 @@ public class GameLauncher extends Application {
     public void start(Stage primaryStage) {
         VBox layout = new VBox(10);
         TextField pseudoField = new TextField();
+        pseudoField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > 20) {
+                pseudoField.setText(oldValue);
+            }
+        });
         pseudoField.setPromptText("Entrez votre pseudo");
         Button localButton = new Button("Jouer en Local");
         Button onlineButton = new Button("Jouer en Ligne");

@@ -189,7 +189,12 @@ public class Cell extends GameEntity implements PlayerComponent {
 
         if (!canMerge(otherCell)) return;
 
-        if ((intersectionPercentage(this, (Cell)other) <= 33)) return;
+        double dx = otherCell.getX() - this.getX();
+        double dy = otherCell.getY() - this.getY();
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        double minDistance = this.getRadius() + otherCell.getRadius();
+
+        if (distance > minDistance) return;
 
         this.mass += otherCell.getMass();
         this.setMass(this.mass);
