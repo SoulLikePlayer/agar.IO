@@ -149,8 +149,8 @@ public class GameController {
 
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
-            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 10);
-            newEntities.addAll(world.getQuadTree().retrieve(cell, searchRadius * 10));
+            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 2);
+            newEntities.addAll(world.getQuadTree().retrieve(cell, searchRadius * 20));
 
             for (GameEntity entity : nearbyEntities) {
                 if (entity instanceof Pellet && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
