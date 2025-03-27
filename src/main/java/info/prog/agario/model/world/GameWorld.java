@@ -31,8 +31,6 @@ public class GameWorld {
             Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10, this);
             enemies.add(enemy);
         }
-        //entities.add(EntityFactory.createEntity("cell",100,100,10));
-        //Cell enemy = new Cell(100, 100, 10, Color.BLACK);
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
         generatePellets(200);
     }

@@ -136,8 +136,8 @@ public class GameController {
 
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
-            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 10);
-            newEntities.addAll(nearbyEntities);
+            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 2);
+            newEntities.addAll(world.getQuadTree().retrieve(cell, searchRadius * 10));
 
             for (GameEntity entity : nearbyEntities) {
                 if (entity instanceof Pellet && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
@@ -148,7 +148,24 @@ public class GameController {
                 }
             }
         }
+
+
         for (Enemy enemy : world.getEnemies()) {
+            for(Enemy enemy2 : world.getEnemies()){
+                if (enemy != enemy2){
+                    for (Cell enemyCell1 : enemy.getEnemyGroup().getCells()) {
+                        for (Cell enemyCell2 : enemy2.getEnemyGroup().getCells()) {
+                            if(intersectionPercentage(enemyCell1, enemyCell2) > 33) {
+                                if (enemyCell1.getMass() >= enemyCell2.getMass() * 1.33) {
+                                    enemyCell1.absorbCell(enemyCell2);
+                                    entitiesToRemove.add(enemyCell2);
+                                    enemiesToRemove.add(enemy2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
             for (Cell enemyCell : enemy.getEnemyGroup().getCells()) {
                 for (Cell playerCell : playerGroup.getCells()) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(playerCell.getShape().getBoundsInParent())) {
@@ -191,6 +208,7 @@ public class GameController {
                     }
                 }
             }
+
         }
 
 
