@@ -7,6 +7,8 @@ import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.utils.AnimationUtils;
 import javafx.scene.paint.Color;
 
+import java.util.Random;
+
 public class Enemy extends GameEntity {
     private final Color color;
     private Strategy strat;
@@ -22,15 +24,22 @@ public class Enemy extends GameEntity {
         Cell firstCell = new Cell(x, y, mass, this.color);
         firstCell.setParentGroup(this.enemyGroup);
         enemyGroup.addComponent(firstCell);
+        Random r = new Random();
+        int nStrat = r.nextInt(3);
+        switch (nStrat){
+            case 0 : strat = new CellEatingMovement(this.enemyGroup, this.world.getPlayer().getPlayerGroup()); break;
+            case 1 : strat = new PelletMovement(this.enemyGroup, this.world.getQuadTree()); break;
+            default : strat = new RandomMovement(this.enemyGroup); break;
+        }
         try {
             this.move();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     public void move() throws InterruptedException {
-        strat = new CellEatingMovement(this.enemyGroup, world.getPlayer().getPlayerGroup());
         strat.movement();
     }
 
