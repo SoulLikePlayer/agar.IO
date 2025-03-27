@@ -1,54 +1,52 @@
 package info.prog.agario.model.entity.ai;
 
 import info.prog.agario.model.entity.GameEntity;
+import info.prog.agario.model.entity.player.AliveEntity;
 import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.PlayerGroup;
+import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.utils.AnimationUtils;
 import javafx.scene.paint.Color;
 
-public class Enemy extends GameEntity {
+import java.util.Random;
+
+public class Enemy extends AliveEntity {
     private final Color color;
     private Strategy strat;
     private PlayerGroup enemyGroup;
 
-    public Enemy(double x, double y, double mass) {
+    private String pseudo;
+
+    private GameWorld world;
+
+    public Enemy(double x, double y, double mass, GameWorld world) {
         super(x, y, 10 * Math.sqrt(mass));
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.enemyGroup = new PlayerGroup();
-        Cell firstCell = new Cell(x, y, mass, this.color);
+        this.world = world;
+        pseudo = "BOT ALBERT";
+        Cell firstCell = new Cell(x, y, mass, this.color, pseudo);
         firstCell.setParentGroup(this.enemyGroup);
         enemyGroup.addComponent(firstCell);
+        Random r = new Random();
+        int nStrat = r.nextInt(3);
+        switch (nStrat){
+            case 0 : strat = new CellEatingMovement(this.enemyGroup, this.world.getPlayer().getPlayerGroup()); break;
+            case 1 : strat = new PelletMovement(this.enemyGroup, this.world.getQuadTree()); break;
+            default : strat = new RandomMovement(this.enemyGroup); break;
+        }
         try {
             this.move();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
     }
 
-    /*public double getX(){
-        return this.x.getValue();
+    public String getPseudo(){
+        return pseudo;
     }
-
-    public double getY(){
-        return this.y.getValue();
-    }
-
-    public void setX(double newX){
-        this.x.setValue(newX);
-    }
-
-    public void setY(double newY){
-        this.y.setValue(newY);
-    }*/
-
-    /*public void move() throws InterruptedException {
-        strat = new RandomMovement(this);
-        strat.movement();
-        System.out.println("Final X : " + this.getShape().getCenterX() + " Final Y : " + this.getShape().getCenterY());
-    }*/
-
     public void move() throws InterruptedException {
-        strat = new RandomMovement(this.enemyGroup);
         strat.movement();
     }
 

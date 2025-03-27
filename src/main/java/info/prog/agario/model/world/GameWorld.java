@@ -17,26 +17,24 @@ import java.util.Random;
 
 public class GameWorld {
     private QuadTree quadTree;
-    private List<GameEntity> entities;
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<>();
-    private int nbEnnemies = 1;
+    private static final int NB_ENEMIES = 5;
+
+    private static final int SIZE = 2000;
 
     private static final int MAP_SIZE = 8000;
 
-
-
     public GameWorld(String pseudo) {
-        entities = new ArrayList<>();
-        quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
-        player = new Player(1000, 1000, 10, pseudo);
+        quadTree = new QuadTree(new Boundary(0, 0, SIZE, SIZE));
+        player = new Player(300, 400, 10, pseudo);
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         Random r = new Random();
-        for(int i = 0; i < nbEnnemies; i++){
-            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 50);
+        for(int i = 0; i < NB_ENEMIES; i++){
+            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10, this);
             enemies.add(enemy);
-            entities.add(enemy);
         }
+
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
         generatePellets((int)(MAP_SIZE*0.8));
     }
@@ -66,19 +64,15 @@ public class GameWorld {
             double rank = random.nextDouble(100);
             String type = pelletProbabilities.ceilingEntry(rank).getValue();
             GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * MAP_SIZE, random.nextDouble() * MAP_SIZE, 0);
-            entities.add(pellet);
             quadTree.insert(pellet);
+
         }
     }
 
-    public List<GameEntity> getEntities() {
-        return entities;
-    }
 
     public Player getPlayer() {
         return player;
     }
-
 
     public ArrayList<Enemy> getEnemies(){ return enemies; }
 

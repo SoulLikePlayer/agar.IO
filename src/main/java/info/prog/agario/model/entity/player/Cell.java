@@ -4,14 +4,18 @@ import info.prog.agario.model.entity.ExplosionPellet;
 import info.prog.agario.model.entity.GameEntity;
 
 import info.prog.agario.model.entity.SpecialPellet;
+import info.prog.agario.model.world.GameWorld;
+import info.prog.agario.view.GameView;
 import javafx.scene.layout.Pane;
+import info.prog.agario.model.entity.Pellet;
 import javafx.scene.paint.Color;
 import info.prog.agario.utils.AnimationUtils;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+import static info.prog.agario.controller.GameController.intersectionPercentage;
 
 public class Cell extends GameEntity implements PlayerComponent {
     private double mass;
@@ -27,6 +31,8 @@ public class Cell extends GameEntity implements PlayerComponent {
     private static final int BOOST_MULTIPLIER = 3;
     private boolean isBoosted = false;
     private long boostStartTime;
+
+    private Text pseudo;
 
     private long lastDivisionTime;
 
@@ -64,8 +70,8 @@ public class Cell extends GameEntity implements PlayerComponent {
         x.setValue(newX);
         y.setValue(newY);
 
-        velocityX *= 0.99;
-        velocityY *= 0.99;
+        velocityX *= 0.95;
+        velocityY *= 0.95;
 
         if (Math.abs(velocityX) < 0.1) velocityX = 0;
         if (Math.abs(velocityY) < 0.1) velocityY = 0;
@@ -78,6 +84,36 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.shape.setFill(color);
         this.shape.setStroke(color.darker());
         this.shape.setStrokeWidth(3);
+        pseudo = new Text("Pseudo");
+        pseudo.setFill(Color.WHITE);
+        pseudo.setStroke(Color.BLACK);
+        pseudo.setFont(javafx.scene.text.Font.font(20));
+        pseudo.setStyle("-fx-font-weight: bold;");
+        pseudo.setX(this.getX());
+        pseudo.setY(this.getY());
+        pseudo.xProperty().bind(shape.centerXProperty().subtract(pseudo.getBoundsInLocal().getWidth()/2));
+        pseudo.yProperty().bind(shape.centerYProperty().add(pseudo.getBoundsInLocal().getHeight()/4));
+        this.speedMultiplier = 3.0;
+        this.shape.radiusProperty().bind(this.radius);
+        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
+    }
+
+    public Cell(double x, double y, double mass, Color color, String pseudotxt) {
+        super(x, y, 10 * Math.sqrt(mass));
+        this.setMass(mass);
+        this.color = color;
+        this.shape.setFill(color);
+        this.shape.setStroke(color.darker());
+        this.shape.setStrokeWidth(3);
+        pseudo = new Text(pseudotxt);
+        pseudo.setFill(Color.WHITE);
+        pseudo.setStroke(Color.BLACK);
+        pseudo.setFont(javafx.scene.text.Font.font(20));
+        pseudo.setStyle("-fx-font-weight: bold;");
+        pseudo.setX(this.getX());
+        pseudo.setY(this.getY());
+        pseudo.xProperty().bind(shape.centerXProperty().subtract(pseudo.getBoundsInLocal().getWidth()/2));
+        pseudo.yProperty().bind(shape.centerYProperty().add(pseudo.getBoundsInLocal().getHeight()/4));
         this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
         multiplicatorGain = 1;
@@ -102,6 +138,10 @@ public class Cell extends GameEntity implements PlayerComponent {
         updateSpeed();
     }
 
+    public Text getPseudo() {
+        return pseudo;
+    }
+
     public void move(double dx, double dy) {
         long currentTime = System.currentTimeMillis();
         if (isBoosted && (currentTime - boostStartTime >= BOOST_DURATION)) {
@@ -119,7 +159,8 @@ public class Cell extends GameEntity implements PlayerComponent {
     }
 
     public void contactExplosion(GameEntity entity, Pane root){
-        ((SpecialPellet) entity).ExplosionEffect(this, root);
+
+        ((ExplosionPellet) entity).ExplosionEffect(this, root);
     }
 
     public void absorbPellet(GameEntity entity) {
@@ -155,7 +196,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
             this.setMass(newMass);
 
-            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color);
+            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color, getPseudo().getText());
 
             newCell.updateSpeed();
 
@@ -165,14 +206,13 @@ public class Cell extends GameEntity implements PlayerComponent {
 
             this.lastDivisionTime = System.currentTimeMillis();
             newCell.lastDivisionTime = this.lastDivisionTime;
-
             return newCell;
         }
         return null;
     }
 
     public void updateSpeed() {
-        setSpeedMultiplier(Math.max(1.0, 20.0 / Math.sqrt(this.mass)));
+        setSpeedMultiplier(Math.max(0.5, 10.0 / Math.sqrt(this.mass)));
     }
 
 
@@ -184,7 +224,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
         if (!canMerge(otherCell)) return;
 
-        if (!(this.getShape().getBoundsInParent().intersects(((Cell)other).getShape().getBoundsInParent()))) return;
+        if ((intersectionPercentage(this, (Cell)other) <= 33)) return;
 
         this.mass += otherCell.getMass();
         this.setMass(this.mass);
@@ -196,7 +236,9 @@ public class Cell extends GameEntity implements PlayerComponent {
         }
 
         if (otherCell.getShape().getParent() != null) {
-            ((Pane) otherCell.getShape().getParent()).getChildren().remove(otherCell.getShape());
+            Pane parentPane = (Pane) otherCell.getShape().getParent();
+            parentPane.getChildren().remove(otherCell.getShape());
+            parentPane.getChildren().remove(otherCell.getPseudo());
         }
 
         this.lastDivisionTime = System.currentTimeMillis();

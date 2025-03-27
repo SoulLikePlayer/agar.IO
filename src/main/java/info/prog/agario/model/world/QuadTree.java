@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuadTree {
-    private static final int CAPACITY = 4;
+    private static final int CAPACITY = 8;
     private List<GameEntity> entities;
     private Boundary boundary;
     private boolean divided = false;
@@ -79,4 +79,20 @@ public class QuadTree {
 
         return found;
     }
+
+    public void remove(GameEntity entity) {
+        if (!boundary.contains(entity.getX(), entity.getY())) {
+            return;
+        }
+
+        entities.remove(entity);
+
+        if (divided) {
+            northeast.remove(entity);
+            northwest.remove(entity);
+            southeast.remove(entity);
+            southwest.remove(entity);
+        }
+    }
+
 }

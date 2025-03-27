@@ -37,13 +37,6 @@ public class RandomMovement implements Strategy{
             double factor = distance > 0 ? speed / distance : 1;
 
             entity.move(lastRandom[0] * factor, lastRandom[1] * factor);
-            //double newX = entity.getShape().getCenterX();
-            //double newY = entity.getShape().getCenterY();
-            //entity.setPosition(newX, newY);
-
-            //System.out.println("Co X : " + newX + " Co Y : " + newY);
-            //System.out.println("Co X : " + entity.getX() + " Co Y : " + entity.getY());
-            //System.out.println("co du playergroup : " + entity.getCells().get(0).getX() + " " + entity.getCells().get(0).getY());
         }));
 
         tl.setCycleCount(Timeline.INDEFINITE);

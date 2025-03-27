@@ -14,13 +14,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class ExplosionPellet extends SpecialPellet {
+public class ExplosionPellet extends GameEntity {
 
     public ExplosionPellet(double x, double y) {
-        super(x, y);
-        this.radius = new SimpleDoubleProperty(50);
+        super(x, y, 50);
         this.setMass(0);
-
         Circle mainCircle = new Circle(x, y, 50);
         mainCircle.setFill(Color.RED);
         mainCircle.setStroke(Color.DARKRED);
@@ -28,13 +26,6 @@ public class ExplosionPellet extends SpecialPellet {
         mainCircle.getStrokeDashArray().addAll(5d, 10d);
         this.shape = mainCircle;
     }
-
-    @Override
-    public void PlayEffect(Cell cell) {
-
-    }
-
-
 
 
     public void divideParentGroup(PlayerGroup playerGroup){

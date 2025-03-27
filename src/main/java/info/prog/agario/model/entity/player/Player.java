@@ -1,15 +1,17 @@
 package info.prog.agario.model.entity.player;
 
+import info.prog.agario.model.entity.ai.Enemy;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
-public class Player {
-    private PlayerGroup playerGroup;
+public class Player extends AliveEntity{
+    private PlayerGroup playerGroup ;
     private String pseudo;
     private Text pseudoText;
     private Color color;
 
     public Player(double x, double y, double mass, String pseudo) {
+        super(x, y, 30);
         this.pseudo = pseudo;
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.playerGroup = new PlayerGroup();
@@ -35,6 +37,10 @@ public class Player {
 
     public Text getPseudoText() {
         return pseudoText;
+    }
+
+    public String getPseudo() {
+        return pseudoText.getText();
     }
 
     public double getX() {
