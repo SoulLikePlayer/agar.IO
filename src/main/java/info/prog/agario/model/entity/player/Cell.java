@@ -134,7 +134,7 @@ public class Cell extends GameEntity implements PlayerComponent {
     }
 
     public void absorbPellet(GameEntity entity) {
-        this.mass += 10;
+        this.mass += 1;
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
         AnimationUtils.playGrowAnimation(this.shape);

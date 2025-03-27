@@ -22,8 +22,11 @@ import javafx.stage.Stage;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
 public class GameController {
+    private static final int TAUX_RESPAWN_ENEMY = 50;
+    private static final int TAUX_RESPAWN_PELLET = 10;
     private GameWorld world;
     private Pane root;
     private Camera camera;
@@ -88,7 +91,7 @@ public class GameController {
                 }
             }
         }
-        smallestInFront();
+        biggestInFront();
     }
 
     private void handleMouseMovement(MouseEvent event) {
@@ -136,7 +139,7 @@ public class GameController {
 
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
-            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 2);
+            List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 10);
             newEntities.addAll(world.getQuadTree().retrieve(cell, searchRadius * 10));
 
             for (GameEntity entity : nearbyEntities) {
@@ -201,15 +204,15 @@ public class GameController {
                             System.out.println("Enemy -> Pellet");
                             enemyCell.absorbPellet(entity);
                             entitiesToRemove.add(entity);
+
+
                             absorbedSomething = true;
                             break;
                         }
                     }
                 }
             }
-
         }
-
 
         for(GameEntity entity : newEntities){
             if(!root.getChildren().contains(entity.getShape())) {
@@ -227,8 +230,9 @@ public class GameController {
             }
             else {
                 world.getQuadTree().remove(entityToRemove);
+                world.setNbEntities(world.getNbEntities() - 1);
+                System.out.println("Dinguerie y a " + world.getNbEntities() + " pellets");
             }
-            //System.out.println("Toutes les entités : " + world.getEntities().size());
             root.getChildren().remove(entityToRemove.getShape());
         }
 
@@ -236,11 +240,10 @@ public class GameController {
             world.getEnemies().remove(enemyToRemove);
             root.getChildren().remove(enemyToRemove.getShape());
         }
-        smallestInFront();
+        biggestInFront();
 
         if (absorbedSomething) {
-            System.out.println("Absorption détectée ! Mise à jour du zoom.");
-            camera.update();
+             camera.update();
         }
         if (playerGroup.getCells().isEmpty() && !gameOverAlertShown) {
             gameOverAlertShown = true;
@@ -271,13 +274,35 @@ public class GameController {
             });
         }
 
-        //System.out.println("Masse : " + player.getPlayerGroup().getCells().get(0).getMass());
+        respawnEntities();
+    }
+
+    public void respawnEntities(){
+        if(world.getNbEnemies() > world.getEnemies().size()){
+            if(new Random().nextInt(100) < TAUX_RESPAWN_ENEMY) {
+                Random r = new Random();
+                Enemy enemy = new Enemy(r.nextInt((int) (10 * Math.sqrt(world.getPlayer().getPlayerGroup().getCells().get(0).getMass())), world.getSize()), r.nextInt((int) (10 * Math.sqrt(world.getPlayer().getPlayerGroup().getCells().get(0).getMass())), world.getSize()), 10, world);
+                world.getEnemies().add(enemy);
+                for (Cell cell : enemy.getEnemyGroup().getCells()) {
+                    root.getChildren().add(cell.getShape());
+                    root.getChildren().add(cell.getPseudo());
+                }
+            }
+        }
+        if(world.getNbEntities() < world.getNbPellets()){
+            if(new Random().nextInt(100) < TAUX_RESPAWN_PELLET){
+                GameEntity pellet = EntityFactory.createEntity("pellet", Math.random() * world.getSize(), Math.random() * world.getSize(), 0);
+                world.getQuadTree().insert(pellet);
+                world.setNbEntities(world.getNbEntities() + 1);
+                System.out.println("Maintenant y a " + world.getNbEntities() + " pellets");
+            }
+        }
     }
 
 
-    private void smallestInFront(){
+    private void biggestInFront(){
         List<Cell> cells = new ArrayList<>(world.getPlayer().getPlayerGroup().getCells());
-        cells.sort(Comparator.comparing(Cell::getMass).reversed());
+        cells.sort(Comparator.comparing(Cell::getMass));
         for (Cell cell : cells) {
             cell.getShape().toFront();
             cell.getPseudo().toFront();

@@ -3,9 +3,11 @@ package info.prog.agario.model.entity.player;
 import info.prog.agario.controller.GameController;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class PlayerGroup implements PlayerComponent {
+    public static final int MAX_DIVISIONS = 16;
     private List<PlayerComponent> components = new ArrayList<>();
 
     public void addComponent(PlayerComponent component) {
@@ -32,12 +34,19 @@ public class PlayerGroup implements PlayerComponent {
     @Override
     public PlayerComponent divide() {
         List<PlayerComponent> newCells = new ArrayList<>();
+        int currentCellCount = getCells().size();
+        ArrayList<PlayerComponent> componentsCopy = new ArrayList<>(components);
+        componentsCopy.sort(Comparator.comparing(PlayerComponent::getMass));
 
-        for (PlayerComponent component : new ArrayList<>(components)) {
-            PlayerComponent divided = component.divide();
-            if (divided instanceof Cell) {
-                ((Cell) divided).setParentGroup(this);
-                newCells.add(divided);
+        for (PlayerComponent component : componentsCopy) {
+            if (currentCellCount + newCells.size() < MAX_DIVISIONS) {
+                PlayerComponent divided = component.divide();
+                if (divided instanceof Cell) {
+                    ((Cell) divided).setParentGroup(this);
+                    newCells.add(divided);
+                }
+            } else {
+                break;
             }
         }
         components.addAll(newCells);
