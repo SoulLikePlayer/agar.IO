@@ -20,8 +20,9 @@ public class GameWorld {
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<>();
     private static final int NB_ENEMIES = 5;
-
     private static final int SIZE = 2000;
+    private static final int NB_PELLETS = 200;
+    private int nbEntities = NB_PELLETS;
 
     private static final int MAP_SIZE = 8000;
 
@@ -31,10 +32,9 @@ public class GameWorld {
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         Random r = new Random();
         for(int i = 0; i < NB_ENEMIES; i++){
-            Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10, this);
+            Enemy enemy = new Enemy(r.nextInt(SIZE), r.nextInt(SIZE), 10, this);
             enemies.add(enemy);
         }
-
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
         generatePellets((int)(MAP_SIZE*0.8));
     }
@@ -65,18 +65,31 @@ public class GameWorld {
             String type = pelletProbabilities.ceilingEntry(rank).getValue();
             GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * MAP_SIZE, random.nextDouble() * MAP_SIZE, 0);
             quadTree.insert(pellet);
-
         }
     }
-
 
     public Player getPlayer() {
         return player;
     }
-
-    public ArrayList<Enemy> getEnemies(){ return enemies; }
-
+    public ArrayList<Enemy> getEnemies(){
+        return enemies;
+    }
     public QuadTree getQuadTree() {
         return quadTree;
+    }
+    public int getNbEnemies(){
+        return NB_ENEMIES;
+    }
+    public int getNbPellets(){
+        return NB_PELLETS;
+    }
+    public int getSize() {
+        return SIZE;
+    }
+    public int getNbEntities() {
+        return nbEntities;
+    }
+    public void setNbEntities(int nbEntities) {
+        this.nbEntities = nbEntities;
     }
 }

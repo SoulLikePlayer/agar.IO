@@ -9,7 +9,7 @@ import javafx.scene.paint.Color;
 import java.util.List;
 
 public class MiniMap extends Canvas {
-    private static final int MAP_SIZE = 8000;
+    private static final int MAP_SIZE = 2000;
     private static final int MINI_MAP_SIZE = 200;
 
     private List<GameEntity> entities;

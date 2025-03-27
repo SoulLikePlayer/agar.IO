@@ -17,15 +17,16 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
-
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 
-public class GameController{
-
+public class GameController {
+    private static final int TAUX_RESPAWN_ENEMY = 5; //Pourcentage de chance de respawn un ennemi à chaque update
+    private static final int TAUX_RESPAWN_PELLET = 10; //Pourcentage de chance de respawn un pellet à chaque update
     private GameWorld world;
     private Pane root;
     private Camera camera;
@@ -40,6 +41,16 @@ public class GameController{
         this.root = root;
         this.camera = new Camera(root, world.getPlayer());
 
+        root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.widthProperty().addListener((obsWidth, oldWidth, newWidth) -> {
+                    camera.smoothCenterOn();
+                });
+                newScene.heightProperty().addListener((obsHeight, oldHeight, newHeight) -> {
+                    camera.smoothCenterOn();
+                });
+            }
+        });
     }
 
     public void initialize() {
@@ -91,7 +102,7 @@ public class GameController{
                 }
             }
         }
-        smallestInFront();
+        biggestInFront();
     }
 
     private void handleMouseMovement(MouseEvent event) {
@@ -140,7 +151,7 @@ public class GameController{
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
             List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 2);
-            newEntities.addAll(world.getQuadTree().retrieve(cell, searchRadius * 10));
+            newEntities.addAll(world.getQuadTree().retrieve(cell, searchRadius * 20));
 
             for (GameEntity entity : nearbyEntities) {
                 if ((entity instanceof Pellet || entity instanceof ExplosionPellet) && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
@@ -177,27 +188,19 @@ public class GameController{
             for (Cell enemyCell : enemy.getEnemyGroup().getCells()) {
                 for (Cell playerCell : playerGroup.getCells()) {
                     if (enemyCell.getShape().getBoundsInParent().intersects(playerCell.getShape().getBoundsInParent())) {
-                        System.out.println("Enemy -> touche Joueur");
-                        System.out.println("Overlap : " + intersectionPercentage(playerCell, enemyCell));
                         if(intersectionPercentage(playerCell, enemyCell) > 33) {
                             if (playerCell.getMass() >= enemyCell.getMass() * 1.33) {
-                                System.out.println("Player -> Enemy");
                                 playerCell.absorbCell(enemyCell);
                                 entitiesToRemove.add(enemyCell);
                                 enemiesToRemove.add(enemy);
                                 absorbedSomething = true;
                                 break;
                             } else if (enemyCell.getMass() >= playerCell.getMass() * 1.33) {
-                                System.out.println("Enemy -> Player");
                                 enemyCell.absorbCell(playerCell);
                                 entitiesToRemove.add(playerCell);
                                 absorbedSomething = true;
                                 break;
-                            } else {
-                                System.out.println("on se respecte");
                             }
-                        } else {
-                            System.out.println("j'ai pas toucheooooooooooooooo");
                         }
                     }
                 }
@@ -229,7 +232,6 @@ public class GameController{
             }
         }
 
-        // Suppression des entités absorbées
         for (GameEntity entityToRemove : entitiesToRemove) {
             if(entityToRemove instanceof Cell){
                 root.getChildren().remove(((Cell) entityToRemove).getPseudo());
@@ -240,8 +242,8 @@ public class GameController{
             }
             else {
                 world.getQuadTree().remove(entityToRemove);
+                world.setNbEntities(world.getNbEntities() - 1);
             }
-            //System.out.println("Toutes les entités : " + world.getEntities().size());
             root.getChildren().remove(entityToRemove.getShape());
         }
 
@@ -249,12 +251,10 @@ public class GameController{
             world.getEnemies().remove(enemyToRemove);
             root.getChildren().remove(enemyToRemove.getShape());
         }
-
-        smallestInFront();
+        biggestInFront();
 
         if (absorbedSomething) {
-            System.out.println("Absorption détectée ! Mise à jour du zoom.");
-            camera.update();
+             camera.update();
         }
         if (playerGroup.getCells().isEmpty() && !gameOverAlertShown) {
             gameOverAlertShown = true;
@@ -285,12 +285,33 @@ public class GameController{
                 alert.showAndWait();
             });
         }
+
+        respawnEntities();
     }
 
-
-    private void smallestInFront(){
+    public void respawnEntities(){
+        if(world.getNbEnemies() < world.getEnemies().size()){
+            if(new Random().nextInt(100) < TAUX_RESPAWN_ENEMY) {
+                Random r = new Random();
+                Enemy enemy = new Enemy(r.nextInt((int) (10 * Math.sqrt(world.getPlayer().getPlayerGroup().getCells().get(0).getMass())), world.getSize()), r.nextInt((int) (10 * Math.sqrt(world.getPlayer().getPlayerGroup().getCells().get(0).getMass())), world.getSize()), 10, world);
+                world.getEnemies().add(enemy);
+                for (Cell cell : enemy.getEnemyGroup().getCells()) {
+                    root.getChildren().add(cell.getShape());
+                    root.getChildren().add(cell.getPseudo());
+                }
+            }
+        }
+        if(world.getNbEntities() < world.getNbPellets()){
+            if(new Random().nextInt(100) < TAUX_RESPAWN_PELLET){
+                GameEntity pellet = EntityFactory.createEntity("pellet", Math.random() * world.getSize(), Math.random() * world.getSize(), 0);
+                world.getQuadTree().insert(pellet);
+                world.setNbEntities(world.getNbEntities() + 1);
+            }
+        }
+    }
+    private void biggestInFront(){
         List<Cell> cells = new ArrayList<>(world.getPlayer().getPlayerGroup().getCells());
-        cells.sort(Comparator.comparing(Cell::getMass).reversed());
+        cells.sort(Comparator.comparing(Cell::getMass));
         for (Cell cell : cells) {
             cell.getShape().toFront();
             cell.getPseudo().toFront();
@@ -326,6 +347,5 @@ public class GameController{
     private static double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
-
 
 }

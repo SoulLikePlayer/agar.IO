@@ -11,16 +11,29 @@ import info.prog.agario.view.GameView;
 import java.util.Random;
 
 public class GameLauncher extends Application {
-    private static final String[] RANDOM_PSEUDOS = {
+    public static final String[] RANDOM_PSEUDOS = {
             "Xx_DarkSasukeDu89_xX", "SeigneurDu98", "Pikachu_Sombre",
             "Naruto_LeBg", "JeanMichel_Gamer", "ProGamer666",
-            "BigChungus2000", "MangeurDeQuiches", "MasterChief_PasContent"
+            "BigChungus2000", "MangeurDeQuiches", "MasterChief_PasContent",
+            "PouletCurry", "LeSangDuDjo", "MasterclassAkhy",
+            "Dragnos", "akraponix", "SoulLikePlayer",
+            "alexis", "nassim", "tom",
+            "Copilot", "Mistral", "Chat",
+            "pouler.fr", "frite.org", "MiamoAlex.net",
+            "Supormoi", "LeRoiDuTennis🎾🔥💪💀", "FeveEnjoyer",
+            "JonasFan42", "MathiasEnjoyer63", "JFanAccount"
+
     };
 
     @Override
     public void start(Stage primaryStage) {
         VBox layout = new VBox(10);
         TextField pseudoField = new TextField();
+        pseudoField.textProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue.length() > 20) {
+                pseudoField.setText(oldValue);
+            }
+        });
         pseudoField.setPromptText("Entrez votre pseudo");
         Button localButton = new Button("Jouer en Local");
         Button onlineButton = new Button("Jouer en Ligne");

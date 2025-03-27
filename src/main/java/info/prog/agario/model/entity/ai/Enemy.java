@@ -1,5 +1,6 @@
 package info.prog.agario.model.entity.ai;
 
+import info.prog.agario.launcher.GameLauncher;
 import info.prog.agario.model.entity.GameEntity;
 import info.prog.agario.model.entity.player.AliveEntity;
 import info.prog.agario.model.entity.player.Cell;
@@ -24,8 +25,7 @@ public class Enemy extends AliveEntity {
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.enemyGroup = new PlayerGroup();
         this.world = world;
-        pseudo = "BOT ALBERT";
-        Cell firstCell = new Cell(x, y, mass, this.color, pseudo);
+        Cell firstCell = new Cell(x, y, mass, this.color, "[Bot] " + GameLauncher.RANDOM_PSEUDOS[new Random().nextInt(GameLauncher.RANDOM_PSEUDOS.length)]);
         firstCell.setParentGroup(this.enemyGroup);
         enemyGroup.addComponent(firstCell);
         Random r = new Random();
