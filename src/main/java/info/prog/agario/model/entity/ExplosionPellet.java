@@ -28,7 +28,18 @@ public class ExplosionPellet extends GameEntity {
     }
 
 
-    public void divideParentGroup(PlayerGroup playerGroup){
+    public void divideParentGroup(PlayerGroup playerGroup, Pane root){
+        playerGroup.divide();
+
+        List<Cell> updatedCells = playerGroup.getCells();
+        for (Cell cell : updatedCells) {
+            if (!root.getChildren().contains(cell.getShape())) {
+                root.getChildren().add(cell.getShape());
+                root.getChildren().add(cell.getPseudo());
+                cell.getShape().toFront();
+                cell.getPseudo().toFront();
+            }
+        }/*
         List<PlayerComponent> newCells = new ArrayList<>();
         for (PlayerComponent component : new ArrayList<>(playerGroup.getComponents())) {
             PlayerComponent divided = component.divide();
@@ -37,13 +48,13 @@ public class ExplosionPellet extends GameEntity {
                 newCells.add(divided);
             }
         }
-        playerGroup.getComponents().addAll(newCells);
+        playerGroup.getComponents().addAll(newCells);*/
     }
 
     public void ExplosionEffect(Cell cell, Pane root) {
         if(cell.getParentGroup()!= null){
             //cell.getParentGroup().divide();
-            divideParentGroup(cell.getParentGroup());
+            divideParentGroup(cell.getParentGroup(), root);
             List<Cell> updatedCells = cell.getParentGroup().getCells();
             for (Cell cell1 : updatedCells) {
                 if (!root.getChildren().contains(cell1.getShape())) {
