@@ -10,20 +10,37 @@ public class PlayerGroup implements PlayerComponent {
     public static final int MAX_DIVISIONS = 16;
     private List<PlayerComponent> components = new ArrayList<>();
 
+    /**
+     * Add a component to the PlayerGroup
+     * @param component the component to add
+     */
     public void addComponent(PlayerComponent component) {
         components.add(component);
-        System.out.println("Ajout d'un composant : " + component);
+        //System.out.println("Ajout d'un composant : " + component);
     }
 
+    /**
+     * Remove a component from the PlayerGroup
+     * @param component the component to remove
+     */
     public void removeComponent(PlayerComponent component) {
         components.remove(component);
     }
 
+    /**
+     * Meyhos to get the mass of the PlayerGroup
+     * @return double the mass of the PlayerGroup
+     */
     @Override
     public double getMass() {
         return components.stream().mapToDouble(PlayerComponent::getMass).sum();
     }
 
+    /**
+     * Method to move the PlayerGroup
+     * @param dx the x distance to move
+     * @param dy the y distance to move
+     */
     @Override
     public void move(double dx, double dy) {
         for (PlayerComponent component : components) {
@@ -31,6 +48,10 @@ public class PlayerGroup implements PlayerComponent {
         }
     }
 
+    /***
+     * Method to divide the PlayerGroup
+     * @return PlayerComponent the divided PlayerComponent
+     */
     @Override
     public PlayerComponent divide() {
         List<PlayerComponent> newCells = new ArrayList<>();
@@ -53,6 +74,10 @@ public class PlayerGroup implements PlayerComponent {
         return null;
     }
 
+    /**
+     * Method to merge the PlayerGroup's cells
+     * @param other the PlayerComponent to merge with
+     */
     @Override
     public void merge(PlayerComponent other) {
         if (other instanceof PlayerGroup) {
@@ -92,6 +117,11 @@ public class PlayerGroup implements PlayerComponent {
         }
     }
 
+    /**
+     * Method to repel a Cell if it enters another Cell
+     * @param c1 the first Cell
+     * @param c2 the second Cell
+     */
     private void repelCells(Cell c1, Cell c2) {
         if (c1.canMerge(c2)) {
             return;
@@ -119,11 +149,18 @@ public class PlayerGroup implements PlayerComponent {
         }
     }
 
-
+    /**
+     * Method to get the components of the PlayerGroup
+     * @return List<PlayerComponent> the components of the PlayerGroup
+     */
     public List<PlayerComponent> getComponents() {
         return components;
     }
 
+    /**
+     * Method to get the cells of the PlayerGroup
+     * @return List<Cell> the cells of the PlayerGroup
+     */
     public List<Cell> getCells() {
         List<Cell> cells = new ArrayList<>();
         for (PlayerComponent component : components) {

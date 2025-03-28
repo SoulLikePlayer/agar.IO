@@ -20,6 +20,10 @@ public class GameView {
     private MiniMap miniMap;
     private ScoreBoard scoreBoard;
 
+    /**
+     * Constructor of the GameView class
+     * @param pseudo The pseudo of the player
+     */
     public GameView(String pseudo) {
         mainRoot = new AnchorPane();
         root = new Pane();
@@ -36,30 +40,26 @@ public class GameView {
         AnchorPane.setRightAnchor(miniMap, 10.);
         mainRoot.getChildren().add(miniMap);
 
-
         scoreBoard = new ScoreBoard(world);
         AnchorPane.setTopAnchor(scoreBoard, 10.0);
         AnchorPane.setRightAnchor(scoreBoard, 10.0);
         mainRoot.getChildren().add(scoreBoard);
-
 
         new AnimationTimer() {
             @Override
             public void handle(long now) {
                 if(!world.getPlayer().getPlayerGroup().getCells().isEmpty()){
                     miniMap.updateEntities(world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 10), world.getPlayer());
-
-
                     scoreBoard.updateScores();  // Mise à jour du scoreboard
-
                 }
             }
         }.start();
-
-
     }
 
-
+    /**
+     * Method to get the Scene
+     * @return Scene the scene
+     */
     public Scene getScene() {
         return scene;
     }

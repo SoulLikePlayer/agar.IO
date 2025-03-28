@@ -12,25 +12,30 @@ public class QuadTree {
 
     private QuadTree northeast, northwest, southeast, southwest;
 
+    /**
+     * Constructor od the QuadTree class
+     * @param boundary the boundary of the QuadTree
+     */
     public QuadTree(Boundary boundary) {
         this.boundary = boundary;
         this.entities = new ArrayList<>();
     }
 
+    /**
+     * Insert a GameEntity in the QuadTree
+     * @param entity the GameEntity to insert
+     */
     public void insert(GameEntity entity) {
         if (!boundary.contains(entity.getX(), entity.getY())) {
             return;
         }
-
         if (entities.size() < CAPACITY && !divided) {
             entities.add(entity);
             return;
         }
-
         if (!divided) {
             subdivide();
         }
-
         if (northeast.boundary.contains(entity.getX(), entity.getY())) {
             northeast.insert(entity);
         } else if (northwest.boundary.contains(entity.getX(), entity.getY())) {
@@ -42,7 +47,9 @@ public class QuadTree {
         }
     }
 
-
+    /**
+     * Subdivide the QuadTree into 4 parts
+     */
     private void subdivide() {
         double x = boundary.getX();
         double y = boundary.getY();
@@ -56,6 +63,12 @@ public class QuadTree {
         divided = true;
     }
 
+    /**
+     * Retrieve all the GameEntity in the QuadTree in a certain horizon
+     * @param entity the GameEntity to retrieve
+     * @param horizon the horizon of the GameEntity to retrieve
+     * @return List<GameEntity> the list of GameEntity retrieved
+     */
     public List<GameEntity> retrieve(GameEntity entity, double horizon) {
         List<GameEntity> found = new ArrayList<>();
 
@@ -80,6 +93,10 @@ public class QuadTree {
         return found;
     }
 
+    /**
+     * Remove a GameEntity from the QuadTree
+     * @param entity the GameEntity to remove
+     */
     public void remove(GameEntity entity) {
         if (!boundary.contains(entity.getX(), entity.getY())) {
             return;

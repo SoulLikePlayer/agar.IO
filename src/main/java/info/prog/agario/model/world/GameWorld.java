@@ -19,13 +19,17 @@ public class GameWorld {
     private QuadTree quadTree;
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<>();
+    private final NavigableMap<Double, String> pelletProbabilities = new TreeMap<>();
     private static final int NB_ENEMIES = 5;
     private static final int SIZE = 2000;
     private static final int NB_PELLETS = 200;
     private int nbEntities = NB_PELLETS;
-
     private static final int MAP_SIZE = 8000;
 
+    /**
+     * Constructor of the GameWorld class
+     * @param pseudo the pseudo of the player
+     */
     public GameWorld(String pseudo) {
         quadTree = new QuadTree(new Boundary(0, 0, SIZE, SIZE));
         player = new Player(300, 400, 10, pseudo);
@@ -40,9 +44,9 @@ public class GameWorld {
         generatePellets((int)(MAP_SIZE*0.8));
     }
 
-
-    private final NavigableMap<Double, String> pelletProbabilities = new TreeMap<>();
-
+    /**
+     * Initialize the probabilities of the pellets
+     */
     private void initializePelletProbabilities() {
         pelletProbabilities.put(0.5, "InvisiblePellet");
         pelletProbabilities.put(1.0, "DoubleSpeedPellet");
@@ -55,6 +59,10 @@ public class GameWorld {
         pelletProbabilities.put(100., "Pellet");
     }
 
+    /**
+     * Generate the pellets
+     * @param count the number of pellets to generate
+     */
     private void generatePellets(int count) {
         Random random = new Random();
         if (pelletProbabilities.isEmpty()) {
@@ -69,27 +77,66 @@ public class GameWorld {
         }
     }
 
+    /**
+     * Get the player
+     * @return Player the player
+     */
     public Player getPlayer() {
         return player;
     }
+
+    /**
+     * Get the enemies
+     * @return ArrayList<Enemy> the enemies
+     */
     public ArrayList<Enemy> getEnemies(){
         return enemies;
     }
+
+    /**
+     * Get the quadtree
+     * @return QuadTree the quadtree of the world
+     */
     public QuadTree getQuadTree() {
         return quadTree;
     }
+
+    /**
+     * Get the number of enemies
+     * @return int the number of enemies at the beginning
+     */
     public int getNbEnemies(){
         return NB_ENEMIES;
     }
+
+    /**
+     * Get the number of pellets
+     * @return int the number of pellets at the beginning
+     */
     public int getNbPellets(){
         return NB_PELLETS;
     }
+
+    /**
+     * Get the size of the world
+     * @return int the size of the world
+     */
     public int getSize() {
         return SIZE;
     }
+
+    /**
+     * Get the number of entities
+     * @return int the number of entities currently in the world
+     */
     public int getNbEntities() {
         return nbEntities;
     }
+
+    /**
+     * Set the number of entities
+     * @param nbEntities the number of entities to set
+     */
     public void setNbEntities(int nbEntities) {
         this.nbEntities = nbEntities;
     }

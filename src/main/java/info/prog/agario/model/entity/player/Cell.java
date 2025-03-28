@@ -36,47 +36,63 @@ public class Cell extends GameEntity implements PlayerComponent {
 
     private long lastDivisionTime;
 
+    /**
+     * Set the parent group of the cell
+     * @param parentGroup
+     */
     public void setParentGroup(PlayerGroup parentGroup) {
         this.parentGroup = parentGroup;
     }
 
+    /**
+     * Get the parent group of the cell
+     * @return PlayerGroup
+     */
     public PlayerGroup getParentGroup() {
         return parentGroup;
     }
 
+    /**
+     * Get the color of the cell
+     * @return Color
+     */
     public Color getColor() {
         return color;
     }
 
+    /**
+     * @param vx
+     * @param vy
+     * Set the velocity of the cell
+     */
     public void setVelocity(double vx, double vy) {
         this.velocityX = vx;
         this.velocityY = vy;
     }
 
+    /**
+     * Get the multiplicator gain of the cell
+     * @return double
+     */
     public double getMultiplicatorGain() {
         return multiplicatorGain;
     }
 
+    /**
+     * Set the multiplicator gain of the cell
+     * @param multiplicator
+     */
     public void setMultiplicatorGain(double multiplicator) {
         multiplicatorGain = multiplicator;
     }
 
-
-    public void move() {
-        Double newX = shape.getCenterX() + velocityX;
-        Double newY = shape.getCenterY() + velocityY;
-        shape.setCenterX(newX);
-        shape.setCenterY(newY);
-        x.setValue(newX);
-        y.setValue(newY);
-
-        velocityX *= 0.95;
-        velocityY *= 0.95;
-
-        if (Math.abs(velocityX) < 0.1) velocityX = 0;
-        if (Math.abs(velocityY) < 0.1) velocityY = 0;
-    }
-
+    /**
+     * Constructor
+     * @param x
+     * @param y
+     * @param mass
+     * @param color
+     */
     public Cell(double x, double y, double mass, Color color) {
         super(x, y, 10 * Math.sqrt(mass));
         this.setMass(mass);
@@ -97,7 +113,14 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.shape.radiusProperty().bind(this.radius);
         System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
     }
-
+    /**
+     * Constructor
+     * @param x
+     * @param y
+     * @param mass
+     * @param color
+     * @param pseudotxt
+     */
     public Cell(double x, double y, double mass, Color color, String pseudotxt) {
         super(x, y, 10 * Math.sqrt(mass));
         this.setMass(mass);
@@ -120,28 +143,37 @@ public class Cell extends GameEntity implements PlayerComponent {
         System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
     }
 
-    public double getVelocityX() {
-        return velocityX;
-    }
-
-    public double getVelocityY() {
-        return velocityY;
-    }
-
+    /**
+     * Get the mass of the cell
+     * @return double
+     */
     public double getMass() {
         return mass;
     }
 
+    /**
+     * Set the mass of the cell
+     * @param mass
+     */
     public void setMass(double mass) {
         this.mass = mass;
         this.radius.set(10 * Math.sqrt(mass));
         updateSpeed();
     }
 
+    /**
+     * Get the pseudo of the cell
+     * @return Text
+     */
     public Text getPseudo() {
         return pseudo;
     }
 
+    /**
+     * Move the cell
+     * @param dx
+     * @param dy
+     */
     public void move(double dx, double dy) {
         long currentTime = System.currentTimeMillis();
         if (isBoosted && (currentTime - boostStartTime >= BOOST_DURATION)) {
@@ -158,11 +190,20 @@ public class Cell extends GameEntity implements PlayerComponent {
         y.setValue(newY);
     }
 
+    /**
+     * Contact with a pellet
+     * @param entity
+     * @param root
+     */
     public void contactExplosion(GameEntity entity, Pane root){
 
         ((ExplosionPellet) entity).ExplosionEffect(this, root);
     }
 
+    /**
+     * Absorb a pellet
+     * @param entity
+     */
     public void absorbPellet(GameEntity entity) {
         if (entity instanceof SpecialPellet) {
             ((SpecialPellet) entity).PlayEffect(this);
@@ -173,6 +214,10 @@ public class Cell extends GameEntity implements PlayerComponent {
         AnimationUtils.playGrowAnimation(this.shape);
     }
 
+    /**
+     * Absorb a cell
+     * @param cell
+     */
     public void absorbCell(Cell cell) {
         this.mass += cell.getMass();
         this.radius.set(10 * Math.sqrt(mass));
@@ -180,14 +225,26 @@ public class Cell extends GameEntity implements PlayerComponent {
         AnimationUtils.playGrowAnimation(this.shape);
     }
 
+    /**
+     * Set the speed multiplier of the cell
+     * @param multiplier
+     */
     public void setSpeedMultiplier(double multiplier) {
         this.speedMultiplier = multiplier;
     }
 
+    /**
+     * Get the speed multiplier of the cell
+     * @return double
+     */
     public double GetSpeedMultiplier() {
         return speedMultiplier;
     }
 
+    /**
+     * Divide the cell into two cells
+     * @return PlayerComponent
+     */
     @Override
     public PlayerComponent divide() {
         if (mass >= 20) {
@@ -211,11 +268,17 @@ public class Cell extends GameEntity implements PlayerComponent {
         return null;
     }
 
+    /**
+     * Update the speed of the cell
+     */
     public void updateSpeed() {
         setSpeedMultiplier(Math.max(0.5, 10.0 / Math.sqrt(this.mass)));
     }
 
-
+    /**
+     * Merge the cell with another cell
+     * @param other
+     */
     @Override
     public void merge(PlayerComponent other) {
         if (!(other instanceof Cell)) return;
@@ -247,9 +310,11 @@ public class Cell extends GameEntity implements PlayerComponent {
         System.out.println("Fusion effectuée ! Nouvelle masse : " + this.mass);
     }
 
-
-
-
+    /**
+     * Check if the cell can merge with another cell
+     * @param other
+     * @return boolean
+     */
     public boolean canMerge(Cell other) {
         long currentTime = System.currentTimeMillis();
         long elapsedTimeThis = currentTime - this.lastDivisionTime;
@@ -260,6 +325,10 @@ public class Cell extends GameEntity implements PlayerComponent {
         return elapsedTimeThis >= requiredTime && elapsedTimeOther >= requiredTime;
     }
 
+    /**
+     * Get the cells of the player
+     * @return List<Cell>
+     */
     @Override
     public List<Cell> getCells() {
         ArrayList<Cell> lst = new ArrayList();

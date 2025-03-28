@@ -15,11 +15,19 @@ public class PelletMovement implements Strategy{
     private PlayerGroup group;
 
     private QuadTree quadTree;
+    /**
+     * Constructor for the PelletMovement class
+     * @param group the player group
+     * @param quadTree the quad tree
+     */
     public PelletMovement(PlayerGroup group, QuadTree quadTree){
         this.group = group;
         this.quadTree = quadTree;
     }
 
+    /**
+     * Move the enemy cells towards the nearest pellet
+     */
     @Override
     public void movement() {
         Timeline tl = new Timeline(new KeyFrame(Duration.millis(33), event -> {
@@ -44,6 +52,11 @@ public class PelletMovement implements Strategy{
         tl.play();
     }
 
+    /**
+     * Find the nearest pellet to the cell
+     * @param cell the cell
+     * @return GameEntity the nearest pellet
+     */
     private GameEntity findNearestPellet(Cell cell) {
         List<GameEntity> nearbyEntities = quadTree.retrieve(cell, cell.getRadius() * 5);
         GameEntity nearestPellet = null;

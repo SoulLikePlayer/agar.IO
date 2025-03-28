@@ -13,12 +13,20 @@ public class Camera {
     private static final double BASE_ZOOM = 1.0;
     private static final double MIN_ZOOM = 0.5;
 
+    /**
+     * Constructor of the Camera class
+     * @param root The root of the scene
+     * @param player The player
+     */
     public Camera(Pane root, Player player) {
         this.root = root;
         this.player = player;
         this.group = player.getPlayerGroup();
     }
 
+    /**
+     * Smoothly center the camera on the player
+     */
     public void smoothCenterOn() {
         double totalX = 0, totalY = 0, totalMass = 0;
         for (Cell cell : player.getPlayerGroup().getCells()) {
@@ -47,7 +55,9 @@ public class Camera {
         root.setTranslateY(lerpY);
     }
 
-
+    /**
+     * Update the camera position
+     */
     public void update() {
         smoothCenterOn();
     }

@@ -15,12 +15,20 @@ public class MiniMap extends Canvas {
     private List<GameEntity> entities;
     private Player player;
 
+    /**
+     * Constructor of the MiniMap
+     * @param entities the entities to display on the map
+     * @param player the player to display on the map
+     */
     public MiniMap(List<GameEntity> entities, Player player) {
         super(MINI_MAP_SIZE, MINI_MAP_SIZE);
         this.entities = entities;
         this.player = player;
     }
 
+    /**
+     * Draw the entities and the player on the map
+     */
     public void draw() {
         GraphicsContext gc = getGraphicsContext2D();
 
@@ -42,6 +50,11 @@ public class MiniMap extends Canvas {
         gc.fillOval(playerX, playerY, 5, 5);
     }
 
+    /**
+     * Update the entities and the player to display on the map
+     * @param entities the entities to display on the map
+     * @param player the player to display on the map
+     */
     public void updateEntities(List<GameEntity> entities, Player player) {
         this.entities = entities;
         this.player = player;

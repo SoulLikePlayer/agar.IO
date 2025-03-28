@@ -20,6 +20,13 @@ public class Enemy extends AliveEntity {
 
     private GameWorld world;
 
+    /**
+     * Constructor of the Enemy class
+     * @param x The x position of the enemy
+     * @param y The y position of the enemy
+     * @param mass The mass of the enemy
+     * @param world The game world
+     */
     public Enemy(double x, double y, double mass, GameWorld world) {
         super(x, y, 10 * Math.sqrt(mass));
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
@@ -44,13 +51,25 @@ public class Enemy extends AliveEntity {
 
     }
 
+    /**
+     * Method to get the pseudo of the enemy
+     * @return String the pseudo of the enemy
+     */
     public String getPseudo(){
         return pseudo;
     }
+
+    /**
+     * Method to move the enemy
+     */
     public void move() throws InterruptedException {
         strat.movement();
     }
 
+    /**
+     * Method to get the group of cells of the enemy
+     * @return PlayerGroup the group of cells of the enemy
+     */
     public PlayerGroup getEnemyGroup() {
         return enemyGroup;
     }

@@ -1,28 +1,31 @@
 package info.prog.agario.model.entity.ai;
 
-import info.prog.agario.model.entity.GameEntity;
-import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Shape;
 import javafx.util.Duration;
 
 import java.util.Random;
-import java.util.Timer;
-import java.util.concurrent.TimeUnit;
 
 public class RandomMovement implements Strategy{
-    private PlayerGroup entity;
+    private PlayerGroup group;
     private Random r = new Random();
 
     private int[] lastRandom = new int[2];
-    public RandomMovement(PlayerGroup entity){
-        this.entity = entity;
+
+    /**
+     * Constructor for RandomMovement
+     * @param group the PlayerGroup to move
+     */
+    public RandomMovement(PlayerGroup group){
+        this.group = group;
         this.lastRandom[0] = 0;
         this.lastRandom[1] = 0;
     }
+
+    /**
+     * Moves the PlayerGroup in a random direction
+     */
     @Override
     public void movement() {
         Timeline tl = new Timeline(new KeyFrame(Duration.millis(33), event -> {
@@ -36,7 +39,7 @@ public class RandomMovement implements Strategy{
             double distance = Math.sqrt(lastRandom[0] * lastRandom[0] + lastRandom[1] * lastRandom[1]);
             double factor = distance > 0 ? speed / distance : 1;
 
-            entity.move(lastRandom[0] * factor, lastRandom[1] * factor);
+            group.move(lastRandom[0] * factor, lastRandom[1] * factor);
         }));
 
         tl.setCycleCount(Timeline.INDEFINITE);

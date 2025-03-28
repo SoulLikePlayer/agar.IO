@@ -15,11 +15,19 @@ public class CellEatingMovement implements Strategy {
     private PlayerGroup enemyGroup;
     private PlayerGroup playerGroup;
 
+    /**
+     * Constructor of the CellEatingMovement class
+     * @param enemyGroup The group of enemy cells
+     * @param playerGroup The group of player cells
+     */
     public CellEatingMovement(PlayerGroup enemyGroup, PlayerGroup playerGroup) {
         this.enemyGroup = enemyGroup;
         this.playerGroup = playerGroup;
     }
 
+    /**
+     * Method to move the enemy cells
+     */
     @Override
     public void movement() {
         Timeline tl = new Timeline(new KeyFrame(Duration.millis(33), event -> {
@@ -44,6 +52,11 @@ public class CellEatingMovement implements Strategy {
         tl.play();
     }
 
+    /**
+     * Method to find the nearest player cell
+     * @param enemyCell The enemy cell
+     * @return The nearest player cell
+     */
     private Cell findNearestPlayerCell(Cell enemyCell) {
         Cell nearestCell = null;
         double minDistance = Double.MAX_VALUE;
@@ -54,7 +67,6 @@ public class CellEatingMovement implements Strategy {
                 nearestCell = playerCell;
             }
         }
-
         return nearestCell;
     }
 }

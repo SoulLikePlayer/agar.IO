@@ -26,6 +26,10 @@ public class ScoreBoard extends VBox {
     private ObservableList<PlayerScore> scores;
     private GameWorld gameWorld;
 
+    /**
+     * Constructor of the ScoreBoard class
+     * @param gameWorld The game world to which the ScoreBoard is attached
+     */
     public ScoreBoard(GameWorld gameWorld) {
         this.gameWorld = gameWorld;
         this.scores = FXCollections.observableArrayList();
@@ -40,14 +44,12 @@ public class ScoreBoard extends VBox {
         tableView.setFixedCellSize(25);
         tableView.setStyle("-fx-background-color: transparent;"); // Fond transparent
 
-        // Masquer les en-têtes de colonnes
         tableView.skinProperty().addListener((obs, oldSkin, newSkin) -> {
             tableView.lookup(".column-header-background").setStyle("-fx-padding: 0; -fx-background-color: transparent;");
         });
 
-        // Appliquer un style au ScoreBoard
         this.setBackground(new Background(new BackgroundFill(
-                Color.rgb(50, 50, 50, 0.6), // Gris foncé avec opacité faible
+                Color.rgb(50, 50, 50, 0.6),
                 new CornerRadii(10),
                 Insets.EMPTY
         )));
@@ -63,7 +65,6 @@ public class ScoreBoard extends VBox {
         TableColumn<PlayerScore, Number> massColumn = new TableColumn<>();
         massColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getMass()));
 
-        // Supprimer les bordures des colonnes
         rankColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
         nameColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
         massColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
@@ -71,10 +72,8 @@ public class ScoreBoard extends VBox {
         tableView.getColumns().addAll(rankColumn, nameColumn, massColumn);
         tableView.setItems(scores);
 
-        // Désactiver le message "vide"
         tableView.setPlaceholder(null);
 
-        // Appliquer un style sur les lignes
         tableView.setRowFactory(tv -> {
             TableRow<PlayerScore> row = new TableRow<>();
             row.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
@@ -84,6 +83,9 @@ public class ScoreBoard extends VBox {
         this.getChildren().addAll(title, tableView);
     }
 
+    /**
+     * Update the ScoreBoard with the players and enemies scores
+     */
     public void updateScores() {
         List<PlayerScore> updatedScores = new ArrayList<>();
 
@@ -107,23 +109,53 @@ public class ScoreBoard extends VBox {
         scores.setAll(updatedScores);
     }
 
+    /**
+     * Inner class representing a player score
+     */
     public class PlayerScore {
         private final SimpleIntegerProperty rank;
         private final SimpleStringProperty pseudo;
         private final SimpleDoubleProperty mass;
 
+        /**
+         * Constructor of the PlayerScore class
+         * @param pseudo The pseudo of the player
+         * @param mass The mass of the player
+         */
         public PlayerScore(String pseudo, double mass) {
             this.rank = new SimpleIntegerProperty(0);
             this.pseudo = new SimpleStringProperty(pseudo);
             this.mass = new SimpleDoubleProperty(mass);
         }
 
+        /**
+         * Get the Player's rank
+         * @return int the rank of the player
+         */
         public int getRank() { return rank.get(); }
+
+        /**
+         * Set the Player's rank
+         * @param rank the new rank of the player
+         */
         public void setRank(int rank) { this.rank.set(rank); }
 
+        /**
+         * Get the Player's pseudo
+         * @return String the pseudo of the player
+         */
         public String getPseudo() { return pseudo.get(); }
+
+        /**
+         * Get the Player's mass
+         * @return double the mass of the player
+         */
         public double getMass() { return mass.get(); }
 
+        /**
+         * Override the toString method
+         * @return String the string representation of the PlayerScore
+         */
         @Override
         public String toString() {
             return "Rank: " + rank + ", Pseudo: " + pseudo + ", Mass: " + mass;
