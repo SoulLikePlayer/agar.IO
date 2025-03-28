@@ -29,7 +29,7 @@ public class GameView {
         root = new Pane();
         root.setPrefSize(1020, 720);
         world = new GameWorld(pseudo);
-        controller = new GameController(world, root);
+        controller = new GameController(world, root, mainRoot);
         scene = new Scene(mainRoot, 1080, 720);
         controller.initialize();
         miniMap = new MiniMap(world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 10), world.getPlayer());
