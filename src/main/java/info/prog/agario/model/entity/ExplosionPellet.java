@@ -48,6 +48,7 @@ public class ExplosionPellet extends GameEntity {
             for (Cell cell1 : updatedCells) {
                 if (!root.getChildren().contains(cell1.getShape())) {
                     root.getChildren().add(cell1.getShape());
+                    root.getChildren().add(cell1.getPseudo());
                     cell1.getShape().toFront();
                 }
             }
