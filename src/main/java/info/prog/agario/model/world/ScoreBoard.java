@@ -26,63 +26,66 @@ public class ScoreBoard extends VBox {
     private ObservableList<PlayerScore> scores;
     private GameWorld gameWorld;
 
-    public ScoreBoard(GameWorld gameWorld) {
-        this.gameWorld = gameWorld;
-        this.scores = FXCollections.observableArrayList();
+   public ScoreBoard(GameWorld gameWorld) {
+    this.gameWorld = gameWorld;
+    this.scores = FXCollections.observableArrayList();
 
-        // Titre principal
-        Label title = new Label("ScoreBoard");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+    // Titre principal
+    Label title = new Label("ScoreBoard");
+    title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        tableView = new TableView<>();
-        tableView.setPrefWidth(200);
-        tableView.setPrefHeight(300);
-        tableView.setFixedCellSize(25);
-        tableView.setStyle("-fx-background-color: transparent;"); // Fond transparent
+    tableView = new TableView<>();
+    tableView.setPrefWidth(200);
+    tableView.setPrefHeight(300);
+    tableView.setFixedCellSize(25);
+    tableView.setStyle("-fx-background-color: transparent; -fx-text-fill: white;"); // Fond transparent et texte en blanc
 
-        // Masquer les en-têtes de colonnes
-        tableView.skinProperty().addListener((obs, oldSkin, newSkin) -> {
-            tableView.lookup(".column-header-background").setStyle("-fx-padding: 0; -fx-background-color: transparent;");
-        });
+    // Désactiver les événements de la souris
+    tableView.setMouseTransparent(true);
 
-        // Appliquer un style au ScoreBoard
-        this.setBackground(new Background(new BackgroundFill(
-                Color.rgb(50, 50, 50, 0.6), // Gris foncé avec opacité faible
-                new CornerRadii(10),
-                Insets.EMPTY
-        )));
-        this.setPadding(new Insets(5));
-        this.setSpacing(5);
+    // Masquer les en-têtes de colonnes
+    tableView.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+        tableView.lookup(".column-header-background").setStyle("-fx-padding: 0; -fx-background-color: transparent;");
+    });
 
-        TableColumn<PlayerScore, Number> rankColumn = new TableColumn<>();
-        rankColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getRank()));
+    // Appliquer un style au ScoreBoard
+    this.setBackground(new Background(new BackgroundFill(
+            Color.rgb(50, 50, 50, 0.6), // Gris foncé avec opacité faible
+            new CornerRadii(10),
+            Insets.EMPTY
+    )));
+    this.setPadding(new Insets(5));
+    this.setSpacing(5);
 
-        TableColumn<PlayerScore, String> nameColumn = new TableColumn<>();
-        nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPseudo()));
+    TableColumn<PlayerScore, Number> rankColumn = new TableColumn<>();
+    rankColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getRank()));
 
-        TableColumn<PlayerScore, Number> massColumn = new TableColumn<>();
-        massColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getMass()));
+    TableColumn<PlayerScore, String> nameColumn = new TableColumn<>();
+    nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPseudo()));
 
-        // Supprimer les bordures des colonnes
-        rankColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
-        nameColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
-        massColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
+    TableColumn<PlayerScore, Number> massColumn = new TableColumn<>();
+    massColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getMass()));
 
-        tableView.getColumns().addAll(rankColumn, nameColumn, massColumn);
-        tableView.setItems(scores);
+    // Supprimer les bordures des colonnes
+    rankColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-text-fill: white;");
+    nameColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-text-fill: white;");
+    massColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-text-fill: white;");
 
-        // Désactiver le message "vide"
-        tableView.setPlaceholder(null);
+    tableView.getColumns().addAll(rankColumn, nameColumn, massColumn);
+    tableView.setItems(scores);
 
-        // Appliquer un style sur les lignes
-        tableView.setRowFactory(tv -> {
-            TableRow<PlayerScore> row = new TableRow<>();
-            row.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
-            return row;
-        });
+    // Désactiver le message "vide"
+    tableView.setPlaceholder(null);
 
-        this.getChildren().addAll(title, tableView);
-    }
+    // Appliquer un style sur les lignes
+    tableView.setRowFactory(tv -> {
+        TableRow<PlayerScore> row = new TableRow<>();
+        row.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
+        return row;
+    });
+
+    this.getChildren().addAll(title, tableView);
+}
 
     public void updateScores() {
         List<PlayerScore> updatedScores = new ArrayList<>();

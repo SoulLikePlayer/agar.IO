@@ -2,6 +2,8 @@ package info.prog.agario.model.entity;
 
 import info.prog.agario.model.entity.player.Cell;
 import info.prog.agario.view.GameView;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.effect.Glow;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -22,7 +24,18 @@ public abstract class SpecialPellet extends Pellet {
         st.setAutoReverse(true);
         st.setCycleCount(ScaleTransition.INDEFINITE);
         st.play();
-        this.shape.setFill(Color.BLACK);
+
+        Timeline colorChangeTimeline = new Timeline(
+                new KeyFrame(Duration.seconds(0.1), event -> this.shape.setFill(Color.RED)),
+                new KeyFrame(Duration.seconds(0.2), event -> this.shape.setFill(Color.ORANGE)),
+                new KeyFrame(Duration.seconds(0.3), event -> this.shape.setFill(Color.YELLOW)),
+                new KeyFrame(Duration.seconds(0.4), event -> this.shape.setFill(Color.GREEN)),
+                new KeyFrame(Duration.seconds(0.5), event -> this.shape.setFill(Color.BLUE)),
+                new KeyFrame(Duration.seconds(0.6), event -> this.shape.setFill(Color.VIOLET))
+        );
+        colorChangeTimeline.setCycleCount(Timeline.INDEFINITE);
+        colorChangeTimeline.play();
+
         this.setMass(1);
     }
 
