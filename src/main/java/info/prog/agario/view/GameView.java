@@ -47,12 +47,6 @@ public class GameView {
             }
         }.start();
 
-        /*camera = new Camera(root, world.getPlayer());
-
-        root.widthProperty().addListener((observable, oldValue, newValue) -> camera.update());
-        root.heightProperty().addListener((observable, oldValue, newValue) -> camera.update());
-
-        camera.update();*/
 
     }
 

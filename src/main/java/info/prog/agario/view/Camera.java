@@ -47,28 +47,6 @@ public class Camera {
         root.setTranslateY(lerpY);
     }
 
-    public void centerOn() {
-        double totalX = 0, totalY = 0, totalMass = 0;
-        for (Cell cell : player.getPlayerGroup().getCells()) {
-            totalX += cell.getShape().getCenterX() * cell.getMass();
-            totalY += cell.getShape().getCenterY() * cell.getMass();
-            totalMass += cell.getMass();
-        }
-        double centerX = totalX / totalMass;
-        double centerY = totalY / totalMass;
-
-        double targetZoom = BASE_ZOOM / (Math.sqrt(totalMass / 100));
-        targetZoom = Math.max(MIN_ZOOM, Math.min(BASE_ZOOM, targetZoom));
-
-        root.setScaleX(targetZoom);
-        root.setScaleY(targetZoom);
-
-        double centeredX = (root.getWidth() / 2 - centerX) * targetZoom;
-        double centeredY = (root.getHeight() / 2 - centerY) * targetZoom;
-
-        root.setTranslateX(centeredX);
-        root.setTranslateY(centeredY);
-    }
 
     public void update() {
         smoothCenterOn();
