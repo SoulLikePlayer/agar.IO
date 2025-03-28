@@ -35,6 +35,7 @@ public class GameWorld {
             Enemy enemy = new Enemy(r.nextInt(SIZE), r.nextInt(SIZE), 10, this);
             enemies.add(enemy);
         }
+
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
         generatePellets((int)(MAP_SIZE*0.8));
     }

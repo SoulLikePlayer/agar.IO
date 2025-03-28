@@ -25,7 +25,8 @@ public class Enemy extends AliveEntity {
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.enemyGroup = new PlayerGroup();
         this.world = world;
-        Cell firstCell = new Cell(x, y, mass, this.color, "[Bot] " + GameLauncher.RANDOM_PSEUDOS[new Random().nextInt(GameLauncher.RANDOM_PSEUDOS.length)]);
+        this.pseudo = GameLauncher.RANDOM_PSEUDOS[new Random().nextInt(GameLauncher.RANDOM_PSEUDOS.length)];
+        Cell firstCell = new Cell(x, y, mass, this.color, "[Bot] " + pseudo);
         firstCell.setParentGroup(this.enemyGroup);
         enemyGroup.addComponent(firstCell);
         Random r = new Random();
