@@ -3,9 +3,13 @@ package info.prog.agario.model.entity.player;
 import info.prog.agario.model.entity.ai.Enemy;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class Player extends AliveEntity{
     private PlayerGroup playerGroup ;
+    private UUID ID;
     private String pseudo;
     private Text pseudoText;
     private Color color;
@@ -17,12 +21,12 @@ public class Player extends AliveEntity{
      * @param mass mass of the player
      * @param pseudo pseudo of the player
      */
-    public Player(double x, double y, double mass, String pseudo) {
-        super(x, y, 30);
+    public Player(double x, double y, double mass, String pseudo, UUID uuids, UUID cellId) {
+        super(x, y, 30, uuids);
         this.pseudo = pseudo;
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.playerGroup = new PlayerGroup();
-        Cell firstCell = new Cell(x, y, mass, this.color, pseudo);
+        Cell firstCell = new Cell(x, y, mass, this.color, pseudo, cellId);
         firstCell.setParentGroup(this.playerGroup);
         playerGroup.addComponent(firstCell);
         this.pseudoText = new Text(pseudo);
@@ -78,4 +82,17 @@ public class Player extends AliveEntity{
         return playerGroup.getCells().get(0).getY();
     }
 
+    public List<Cell> getCells() {
+        return  playerGroup.getCells();
+    }
+
+    public UUID getId() {
+        return ID;
+    }
+
+    public void clearCell(){
+        for(PlayerComponent component : playerGroup.getComponents()){
+            playerGroup.removeComponent(component);
+        }
+    }
 }

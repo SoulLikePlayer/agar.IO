@@ -8,8 +8,9 @@ import info.prog.agario.model.entity.player.PlayerGroup;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.utils.AnimationUtils;
 import javafx.scene.paint.Color;
-
+import java.util.UUID;
 import java.util.Random;
+
 
 public class Enemy extends AliveEntity {
     private final Color color;
@@ -27,13 +28,13 @@ public class Enemy extends AliveEntity {
      * @param mass The mass of the enemy
      * @param world The game world
      */
-    public Enemy(double x, double y, double mass, GameWorld world) {
-        super(x, y, 10 * Math.sqrt(mass));
+    public Enemy(double x, double y, double mass, GameWorld world){
+        super(x, y, 10 * Math.sqrt(mass), UUID.randomUUID());
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.enemyGroup = new PlayerGroup();
         this.world = world;
         this.pseudo = GameLauncher.RANDOM_PSEUDOS[new Random().nextInt(GameLauncher.RANDOM_PSEUDOS.length)];
-        Cell firstCell = new Cell(x, y, mass, this.color, "[Bot] " + pseudo);
+        Cell firstCell = new Cell(x, y, mass, this.color, pseudo, UUID.randomUUID());
         firstCell.setParentGroup(this.enemyGroup);
         enemyGroup.addComponent(firstCell);
         Random r = new Random();

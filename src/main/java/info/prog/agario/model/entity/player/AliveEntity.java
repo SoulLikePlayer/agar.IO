@@ -2,6 +2,8 @@ package info.prog.agario.model.entity.player;
 
 import info.prog.agario.model.entity.GameEntity;
 
+import java.util.UUID;
+
 public class AliveEntity extends GameEntity {
 
     /**
@@ -10,8 +12,8 @@ public class AliveEntity extends GameEntity {
      * @param y the y position of the entity
      * @param radius the radius of the entity
      */
-    public AliveEntity(double x, double y, double radius) {
-        super(x, y, radius);
+    public AliveEntity(double x, double y, double radius, UUID uuid) {
+        super(x, y, radius, uuid);
     }
 
     /**

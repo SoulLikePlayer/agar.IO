@@ -10,13 +10,11 @@ import java.util.Random;
 import java.util.TreeMap;
 import javafx.scene.paint.Color;
 
-import info.prog.agario.model.world.Boundary;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 public class GameWorld {
     private QuadTree quadTree;
+    private boolean isOnline;
     private Player player;
     private ArrayList<Enemy> enemies = new ArrayList<>();
     private final NavigableMap<Double, String> pelletProbabilities = new TreeMap<>();
@@ -32,7 +30,7 @@ public class GameWorld {
      */
     public GameWorld(String pseudo) {
         quadTree = new QuadTree(new Boundary(0, 0, SIZE, SIZE));
-        player = new Player(300, 400, 10, pseudo);
+        player = new Player(300, 400, 10, pseudo, UUID.randomUUID(), UUID.randomUUID());
         System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
         Random r = new Random();
         for(int i = 0; i < NB_ENEMIES; i++){
@@ -43,6 +41,32 @@ public class GameWorld {
         System.out.println("Nombre d'ennemies crées : " + this.getEnemies().size());
         generatePellets((int)(MAP_SIZE*0.8));
     }
+
+    public GameWorld(String pseudo, boolean isOnline) {
+        this.isOnline = isOnline;
+        quadTree = new QuadTree(new Boundary(0, 0, 2000, 2000));
+
+        if (!isOnline) {
+            player = new Player(300, 400, 10, pseudo, UUID.randomUUID(), UUID.randomUUID());
+            System.out.println("Joueur créé avec " + player.getPlayerGroup().getCells().size() + " cellule(s)");
+            generatePellets(200);
+
+            Random r = new Random();
+            for(int i = 0; i < NB_ENEMIES; i++){
+                Enemy enemy = new Enemy(r.nextInt(0,2001), r.nextInt(0,2001), 10,this);
+                enemies.add(enemy);
+            }
+        }
+
+    }
+
+    public Player getPlayerById(UUID playerId){
+        if(player != null && player.getId().equals(playerId)){
+            return player;
+        }
+        return null;
+    }
+
 
     /**
      * Initialize the probabilities of the pellets
@@ -72,7 +96,7 @@ public class GameWorld {
         for (int i = 0; i < count; i++) {
             double rank = random.nextDouble(100);
             String type = pelletProbabilities.ceilingEntry(rank).getValue();
-            GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * MAP_SIZE, random.nextDouble() * MAP_SIZE, 0);
+            GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * MAP_SIZE, random.nextDouble() * MAP_SIZE, 0, UUID.randomUUID());
             quadTree.insert(pellet);
         }
     }
@@ -139,5 +163,13 @@ public class GameWorld {
      */
     public void setNbEntities(int nbEntities) {
         this.nbEntities = nbEntities;
+    }
+
+    public synchronized void addPlayer(Player player) {
+        this.player = player;
+
+        for(Cell cell : player.getPlayerGroup().getCells()){
+            quadTree.insert(cell);
+        }
     }
 }

@@ -28,16 +28,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class GameController {
     private static final int TAUX_RESPAWN_ENEMY = 5; //Pourcentage de chance de respawn un ennemi à chaque update
     private static final int TAUX_RESPAWN_PELLET = 10; //Pourcentage de chance de respawn un pellet à chaque update
     private GameWorld world;
-    private Pane root;
+    Pane root;
     private Camera camera;
     private long lastUpdate = 0;
     private static final long UPDATE_INTERVAL = 16_000_000;
@@ -88,6 +85,7 @@ public class GameController {
             root.getChildren().add(cell.getShape());
             root.getChildren().add(cell.getPseudo());
         }
+
         root.setOnKeyPressed(this::handleKeyPress);
         root.setFocusTraversable(true);
         root.requestFocus();
@@ -171,7 +169,6 @@ public class GameController {
         PlayerGroup playerGroup = player.getPlayerGroup();
         List<Cell> cells = playerGroup.getCells();
         boolean absorbedSomething = false;
-
         List<GameEntity> entitiesToRemove = new ArrayList<>();
         List<Enemy> enemiesToRemove = new ArrayList<>();
         List<GameEntity> newEntities = new ArrayList<>();
@@ -334,13 +331,6 @@ public class GameController {
             }
         }
     }
-
-    /**
-     * Method to remove entities from the world
-     * @param entitiesToRemove The entities to remove
-     * @param enemiesToRemove The enemies to remove
-     * @param playerGroup The player group
-     */
     private void removeEntitiesFromWorld(List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove, PlayerGroup playerGroup) {
         for (GameEntity entityToRemove : entitiesToRemove) {
             if (entityToRemove instanceof Cell) {
@@ -421,7 +411,7 @@ public class GameController {
         }
         if(world.getNbEntities() < world.getNbPellets()){
             if(new Random().nextInt(100) < TAUX_RESPAWN_PELLET){
-                GameEntity pellet = EntityFactory.createEntity("pellet", Math.random() * world.getSize(), Math.random() * world.getSize(), 0);
+                GameEntity pellet = EntityFactory.createEntity("pellet", Math.random() * world.getSize(), Math.random() * world.getSize(), 0, UUID.randomUUID());
                 world.getQuadTree().insert(pellet);
                 world.setNbEntities(world.getNbEntities() + 1);
             }
@@ -484,4 +474,7 @@ public class GameController {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
+    public void setWorld(GameWorld world) {
+        this.world = world;
+    }
 }

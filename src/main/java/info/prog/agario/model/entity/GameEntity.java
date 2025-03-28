@@ -6,12 +6,16 @@ import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.shape.Circle;
 import info.prog.agario.model.world.Boundary;
 
+import java.util.UUID;
+
 public abstract class GameEntity {
+    private UUID ID;
     protected DoubleProperty x, y, radius;
     protected Circle shape;
     private double mass;
 
-    public GameEntity(double x, double y, double radius) {
+    public GameEntity(double x, double y, double radius, UUID ID) {
+        this.ID = ID;
         this.x = new SimpleDoubleProperty(x);
         this.y = new SimpleDoubleProperty(y);
         this.radius = new SimpleDoubleProperty(radius);
@@ -43,7 +47,6 @@ public abstract class GameEntity {
         this.y.set(this.y.get() + dY);
         this.shape.setCenterX(this.x.get());
         this.shape.setCenterY(this.y.get());
-        //System.out.println("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     }
 
     public void setPosition(double newX, double newY){
@@ -59,5 +62,9 @@ public abstract class GameEntity {
 
     public Boundary getBounds() {
         return new Boundary(x.get() - radius.get(), y.get() - radius.get(),radius.get() * 2, radius.get() * 2);
+    }
+
+    public UUID getID(){
+        return ID;
     }
 }

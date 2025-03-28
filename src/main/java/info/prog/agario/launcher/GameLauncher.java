@@ -1,6 +1,6 @@
 package info.prog.agario.launcher;
 
-import info.prog.agario.server.GameClient;
+import info.prog.agario.network.GameClient;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -8,6 +8,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import info.prog.agario.view.GameView;
+
+import java.io.IOException;
 import java.util.Random;
 
 public class GameLauncher extends Application {
@@ -54,13 +56,23 @@ public class GameLauncher extends Application {
             pseudo = RANDOM_PSEUDOS[new Random().nextInt(RANDOM_PSEUDOS.length)];
         }
         if (online) {
-            System.out.println("Connexion au mode en ligne... (fonctionnalité non encore implémentée)");
+            try{
+                System.out.println("Connexion au serveur...");
+                GameClient gameClient = new GameClient("10.42.17.102", 12345);
+
+                System.out.println("Chargement du jeu en ligne");
+                GameView gameView = new GameView(pseudo, gameClient);
+                stage.setScene(gameView.getScene());
+                stage.setTitle("Agar.io - "+pseudo);
+            }catch (IOException e){
+                System.out.println("Echec de connexion");
+                e.printStackTrace();
+            }
             return;
-        } else {
-            System.out.println("Jeu en local.");
+        }else {
+            GameView gameView = new GameView(pseudo);
+            stage.setScene(gameView.getScene());
+            stage.setTitle("Agar.io - " + pseudo + " (Local)");
         }
-        GameView gameView = new GameView(pseudo);
-        stage.setScene(gameView.getScene());
-        stage.setTitle("Agar.io - " + pseudo);
     }
 }

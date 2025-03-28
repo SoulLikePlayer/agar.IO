@@ -14,10 +14,13 @@ import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 
 import static info.prog.agario.controller.GameController.intersectionPercentage;
 
 public class Cell extends GameEntity implements PlayerComponent {
+    private UUID ID;
     private double mass;
     private Color color;
     private double speedMultiplier;
@@ -92,37 +95,10 @@ public class Cell extends GameEntity implements PlayerComponent {
      * @param y
      * @param mass
      * @param color
-     */
-    public Cell(double x, double y, double mass, Color color) {
-        super(x, y, 10 * Math.sqrt(mass));
-        this.setMass(mass);
-        this.color = color;
-        this.shape.setFill(color);
-        this.shape.setStroke(color.darker());
-        this.shape.setStrokeWidth(3);
-        pseudo = new Text("Pseudo");
-        pseudo.setFill(Color.WHITE);
-        pseudo.setStroke(Color.BLACK);
-        pseudo.setFont(javafx.scene.text.Font.font(20));
-        pseudo.setStyle("-fx-font-weight: bold;");
-        pseudo.setX(this.getX());
-        pseudo.setY(this.getY());
-        pseudo.xProperty().bind(shape.centerXProperty().subtract(pseudo.getBoundsInLocal().getWidth()/2));
-        pseudo.yProperty().bind(shape.centerYProperty().add(pseudo.getBoundsInLocal().getHeight()/4));
-        this.speedMultiplier = 3.0;
-        this.shape.radiusProperty().bind(this.radius);
-        //System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
-    }
-    /**
-     * Constructor
-     * @param x
-     * @param y
-     * @param mass
-     * @param color
      * @param pseudotxt
      */
-    public Cell(double x, double y, double mass, Color color, String pseudotxt) {
-        super(x, y, 10 * Math.sqrt(mass));
+    public Cell(double x, double y, double mass, Color color, String pseudotxt, UUID cellID) {
+        super(x, y, 10 * Math.sqrt(mass), cellID);
         this.setMass(mass);
         this.color = color;
         this.shape.setFill(color);
@@ -140,7 +116,15 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
         multiplicatorGain = 1;
-        //System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
+    }
+
+    public double getVelocityX() {
+        return velocityX;
+    }
+
+    public double getVelocityY() {
+        return velocityY;
+
     }
 
     /**
@@ -252,7 +236,7 @@ public class Cell extends GameEntity implements PlayerComponent {
 
             this.setMass(newMass);
 
-            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color, getPseudo().getText());
+            Cell newCell = new Cell(this.x.getValue(), this.y.getValue(), newMass, this.color, getPseudo().getText(), UUID.randomUUID());
 
             newCell.updateSpeed();
 
@@ -333,5 +317,13 @@ public class Cell extends GameEntity implements PlayerComponent {
         ArrayList<Cell> lst = new ArrayList();
         lst.add(this);
         return lst;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public UUID getId() {
+        return ID;
     }
 }
