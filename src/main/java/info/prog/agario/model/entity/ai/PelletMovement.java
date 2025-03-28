@@ -1,5 +1,6 @@
 package info.prog.agario.model.entity.ai;
 
+import info.prog.agario.model.entity.ExplosionPellet;
 import info.prog.agario.model.entity.GameEntity;
 import info.prog.agario.model.entity.Pellet;
 import info.prog.agario.model.entity.player.Cell;
@@ -42,7 +43,7 @@ public class PelletMovement implements Strategy{
                     if (distance > 1) {
                         double speed = Math.max(0.5, 5.0 / Math.sqrt(cell.getMass()));
                         cell.setVelocity(dx / distance * speed, dy / distance * speed);
-                        cell.move(dx / distance * speed, dy / distance * speed);
+                        group.move(dx / distance * speed, dy / distance * speed);
                     }
                 }
             }

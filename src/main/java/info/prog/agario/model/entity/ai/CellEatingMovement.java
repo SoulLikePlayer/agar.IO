@@ -42,7 +42,7 @@ public class CellEatingMovement implements Strategy {
                     if (distance > 1) {
                         double speed = Math.max(0.5, 5.0 / Math.sqrt(enemyCell.getMass()));
                         enemyCell.setVelocity(dx / distance * speed, dy / distance * speed);
-                        enemyCell.move(dx / distance * speed, dy / distance * speed);
+                        enemyGroup.move(dx / distance * speed, dy / distance * speed);
                     }
                 }
             }

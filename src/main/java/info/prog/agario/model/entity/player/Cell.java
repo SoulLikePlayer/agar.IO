@@ -111,7 +111,7 @@ public class Cell extends GameEntity implements PlayerComponent {
         pseudo.yProperty().bind(shape.centerYProperty().add(pseudo.getBoundsInLocal().getHeight()/4));
         this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
-        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
+        //System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
     }
     /**
      * Constructor
@@ -140,7 +140,7 @@ public class Cell extends GameEntity implements PlayerComponent {
         this.speedMultiplier = 3.0;
         this.shape.radiusProperty().bind(this.radius);
         multiplicatorGain = 1;
-        System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
+        //System.out.println("Nouvelle cellule à x=" + x + ", y=" + y + ", radius=" + this.radius.get());
     }
 
     /**

@@ -43,9 +43,14 @@ public class GameController {
     private static final long UPDATE_INTERVAL = 16_000_000;
     private double mouseX, mouseY;
     private AnchorPane mainRoot;
-
     private boolean gameOverAlertShown = false;
 
+    /**
+     * Constructor of the GameController class
+     * @param world The game world
+     * @param root The root pane
+     * @param mainRoot The main root pane
+     */
     public GameController(GameWorld world, Pane root, AnchorPane mainRoot) {
         this.mainRoot = mainRoot;
         this.world = world;
@@ -64,6 +69,9 @@ public class GameController {
         });
     }
 
+    /**
+     * Method to initialize the game
+     */
     public void initialize() {
         for (GameEntity entity : world.getQuadTree().retrieve(world.getPlayer().getPlayerGroup().getCells().get(0), world.getPlayer().getPlayerGroup().getCells().get(0).getRadius() * 10 )) {
             if(entity instanceof Pellet) {
@@ -98,6 +106,10 @@ public class GameController {
         timer.start();
     }
 
+    /**
+     * Method to handle the key press
+     * @param event The key pressed
+     */
     private void handleKeyPress(KeyEvent event) {
         if (event.getCode() == KeyCode.SPACE) {
             Player player = world.getPlayer();
@@ -116,11 +128,18 @@ public class GameController {
         biggestInFront();
     }
 
+    /**
+     * Method to handle the mouse movement
+     * @param event The mouse event
+     */
     private void handleMouseMovement(MouseEvent event) {
         mouseX = event.getX();
         mouseY = event.getY();
     }
 
+    /**
+     * Method to update the player direction
+     */
     private void updatePlayerDirection() {
         camera.update();
 
@@ -143,6 +162,9 @@ public class GameController {
         }
     }
 
+    /**
+     * Method to update the game
+     */
     private void update() {
         camera.update();
         Player player = world.getPlayer();
@@ -168,12 +190,23 @@ public class GameController {
         respawnEntities();
     }
 
+    /**
+     * Method to merge the cells
+     * @param playerGroup The player group
+     * @param cells The cells to merge
+     */
     private void mergeCells(PlayerGroup playerGroup, List<Cell> cells) {
         for (int i = 0; i < cells.size(); i++) {
             playerGroup.merge(cells.get(i));
         }
     }
 
+    /**
+     * Method to process the cell interactions
+     * @param cells The cells
+     * @param entitiesToRemove The entities to remove
+     * @param newEntities The new entities
+     */
     private void processCellInteractions(List<Cell> cells, List<GameEntity> entitiesToRemove, List<GameEntity> newEntities) {
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
@@ -194,6 +227,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Method to process the enemy interactions
+     * @param playerGroup The player group
+     * @param entitiesToRemove The entities to remove
+     * @param enemiesToRemove The enemies to remove
+     */
     private void processEnemyInteractions(PlayerGroup playerGroup, List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove) {
         boolean absorbedSomething = false;
 
@@ -207,6 +246,13 @@ public class GameController {
         }
     }
 
+    /**
+     * Method to process the enemy cell interactions
+     * @param enemy The enemy
+     * @param enemy2 The second enemy
+     * @param entitiesToRemove The entities to remove
+     * @param enemiesToRemove The enemies to remove
+     */
     private void processEnemyCellInteractions(Enemy enemy, Enemy enemy2, List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove) {
         for (Cell enemyCell1 : enemy.getEnemyGroup().getCells()) {
             for (Cell enemyCell2 : enemy2.getEnemyGroup().getCells()) {
@@ -221,6 +267,13 @@ public class GameController {
         }
     }
 
+    /**
+     * Method to process the player-enemy interactions
+     * @param playerGroup The player group
+     * @param enemy The enemy
+     * @param entitiesToRemove The entities to remove
+     * @param enemiesToRemove The enemies to remove
+     */
     private void processPlayerEnemyInteractions(PlayerGroup playerGroup, Enemy enemy, List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove) {
         boolean absorbedSomething = false;
 
@@ -250,22 +303,30 @@ public class GameController {
         }
     }
 
+    /**
+     * Method to process the enemy entity interactions
+     * @param enemyCell The enemy cell
+     * @param entitiesToRemove The entities to remove
+     */
     private void processEnemyEntityInteractions(Cell enemyCell, List<GameEntity> entitiesToRemove) {
         List<GameEntity> entities = world.getQuadTree().retrieve(enemyCell, enemyCell.getRadius() * 2);
         for (GameEntity entity : entities) {
-            if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+            if ((entity instanceof Pellet || entity instanceof ExplosionPellet) && enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                 if (entity instanceof ExplosionPellet) {
                     enemyCell.contactExplosion(entity, root);
-                }
-                if (entity instanceof Pellet || entity instanceof Cell) {
+                } else {
                     enemyCell.absorbPellet(entity);
                     entitiesToRemove.add(entity);
-                    break;
                 }
+                break;
             }
         }
     }
 
+    /**
+     * Method to add new entities to the root
+     * @param newEntities The new entities
+     */
     private void addNewEntitiesToRoot(List<GameEntity> newEntities) {
         for (GameEntity entity : newEntities) {
             if (!root.getChildren().contains(entity.getShape())) {
@@ -274,6 +335,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Method to remove entities from the world
+     * @param entitiesToRemove The entities to remove
+     * @param enemiesToRemove The enemies to remove
+     * @param playerGroup The player group
+     */
     private void removeEntitiesFromWorld(List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove, PlayerGroup playerGroup) {
         for (GameEntity entityToRemove : entitiesToRemove) {
             if (entityToRemove instanceof Cell) {
@@ -296,6 +363,10 @@ public class GameController {
         biggestInFront();
     }
 
+    /**
+     * Method to check if the game is over
+     * @param playerGroup The player group
+     */
     private void checkGameOver(PlayerGroup playerGroup) {
         if (playerGroup.getCells().isEmpty() && !gameOverAlertShown) {
             gameOverAlertShown = true;
@@ -333,9 +404,9 @@ public class GameController {
         }
     }
 
-
-
-
+    /**
+     * Method to respawn the entities
+     */
     public void respawnEntities(){
         if(world.getNbEnemies() < world.getEnemies().size()){
             if(new Random().nextInt(100) < TAUX_RESPAWN_ENEMY) {
@@ -356,6 +427,10 @@ public class GameController {
             }
         }
     }
+
+    /**
+     * Method to put the biggest cell in front
+     */
     private void biggestInFront(){
         List<Cell> cells = new ArrayList<>(world.getPlayer().getPlayerGroup().getCells());
         cells.sort(Comparator.comparing(Cell::getMass));
@@ -365,6 +440,12 @@ public class GameController {
         }
     }
 
+    /**
+     * Method to calculate the intersection percentage
+     * @param c1 The first cell
+     * @param c2 The second cell
+     * @return The intersection percentage
+     */
     public static double intersectionPercentage(Cell c1, Cell c2) {
         double d = distance(c1.getX(), c1.getY(), c2.getX(), c2.getY());
 
@@ -391,6 +472,14 @@ public class GameController {
         return 100.0 * intersectionArea / maxArea;
     }
 
+    /**
+     * Method to calculate the distance between two points
+     * @param x1 The x position of the first point
+     * @param y1 The y position of the first point
+     * @param x2 The x position of the second point
+     * @param y2 The y position of the second point
+     * @return double The distance between the two points
+     */
     private static double distance(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }

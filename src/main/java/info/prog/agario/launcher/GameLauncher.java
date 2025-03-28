@@ -21,7 +21,8 @@ public class GameLauncher extends Application {
             "Copilot", "Mistral", "Chat",
             "pouler.fr", "frite.org", "MiamoAlex.net",
             "Supormoi", "LeRoiDuTennis🎾🔥💪💀", "FeveEnjoyer",
-            "JonasFan42", "MathiasEnjoyer63", "JFanAccount"
+            "JonasFan42", "MathiasEnjoyer63", "JFanAccount",
+            "JulienSongJTM", "JulienLPB", "JulienLeGOAT"
 
     };
 
