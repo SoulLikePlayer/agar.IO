@@ -9,14 +9,23 @@ import info.prog.agario.model.entity.player.PlayerComponent;
 import info.prog.agario.model.entity.player.PlayerGroup;
 import javafx.animation.AnimationTimer;
 import javafx.application.Platform;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
+import javafx.geometry.Pos;
+
+import javafx.scene.control.Button;
+
+import javafx.scene.control.Label;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import info.prog.agario.model.world.GameWorld;
 import info.prog.agario.view.Camera;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
@@ -33,10 +42,12 @@ public class GameController {
     private long lastUpdate = 0;
     private static final long UPDATE_INTERVAL = 16_000_000;
     private double mouseX, mouseY;
+    private AnchorPane mainRoot;
 
     private boolean gameOverAlertShown = false;
 
-    public GameController(GameWorld world, Pane root) {
+    public GameController(GameWorld world, Pane root, AnchorPane mainRoot) {
+        this.mainRoot = mainRoot;
         this.world = world;
         this.root = root;
         this.camera = new Camera(root, world.getPlayer());
@@ -134,20 +145,36 @@ public class GameController {
 
     private void update() {
         camera.update();
-
         Player player = world.getPlayer();
         PlayerGroup playerGroup = player.getPlayerGroup();
         List<Cell> cells = playerGroup.getCells();
         boolean absorbedSomething = false;
-        boolean isDead = false;
+
         List<GameEntity> entitiesToRemove = new ArrayList<>();
         List<Enemy> enemiesToRemove = new ArrayList<>();
         List<GameEntity> newEntities = new ArrayList<>();
 
+        mergeCells(playerGroup, cells);
+        processCellInteractions(cells, entitiesToRemove, newEntities);
+        processEnemyInteractions(playerGroup, entitiesToRemove, enemiesToRemove);
+
+        addNewEntitiesToRoot(newEntities);
+        removeEntitiesFromWorld(entitiesToRemove, enemiesToRemove, playerGroup);
+
+        if (absorbedSomething) {
+            camera.update();
+        }
+        checkGameOver(playerGroup);
+        respawnEntities();
+    }
+
+    private void mergeCells(PlayerGroup playerGroup, List<Cell> cells) {
         for (int i = 0; i < cells.size(); i++) {
             playerGroup.merge(cells.get(i));
         }
+    }
 
+    private void processCellInteractions(List<Cell> cells, List<GameEntity> entitiesToRemove, List<GameEntity> newEntities) {
         for (Cell cell : cells) {
             double searchRadius = cell.getRadius();
             List<GameEntity> nearbyEntities = world.getQuadTree().retrieve(cell, searchRadius * 2);
@@ -157,137 +184,157 @@ public class GameController {
                 if ((entity instanceof Pellet || entity instanceof ExplosionPellet) && cell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
                     if (entity instanceof ExplosionPellet) {
                         cell.contactExplosion(entity, root);
-                    }else {
+                    } else {
                         cell.absorbPellet(entity);
                         entitiesToRemove.add(entity);
-                        absorbedSomething = true;
-                        entitiesToRemove.add(entity);
                     }
-
                     break;
                 }
             }
         }
+    }
+
+    private void processEnemyInteractions(PlayerGroup playerGroup, List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove) {
+        boolean absorbedSomething = false;
 
         for (Enemy enemy : world.getEnemies()) {
-            for(Enemy enemy2 : world.getEnemies()){
-                if (enemy != enemy2){
-                    for (Cell enemyCell1 : enemy.getEnemyGroup().getCells()) {
-                        for (Cell enemyCell2 : enemy2.getEnemyGroup().getCells()) {
-                            if(intersectionPercentage(enemyCell1, enemyCell2) > 33) {
-                                if (enemyCell1.getMass() >= enemyCell2.getMass() * 1.33) {
-                                    enemyCell1.absorbCell(enemyCell2);
-                                    entitiesToRemove.add(enemyCell2);
-                                    enemiesToRemove.add(enemy2);
-                                }
-                            }
-                        }
+            for (Enemy enemy2 : world.getEnemies()) {
+                if (enemy != enemy2) {
+                    processEnemyCellInteractions(enemy, enemy2, entitiesToRemove, enemiesToRemove);
+                }
+            }
+            processPlayerEnemyInteractions(playerGroup, enemy, entitiesToRemove, enemiesToRemove);
+        }
+    }
+
+    private void processEnemyCellInteractions(Enemy enemy, Enemy enemy2, List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove) {
+        for (Cell enemyCell1 : enemy.getEnemyGroup().getCells()) {
+            for (Cell enemyCell2 : enemy2.getEnemyGroup().getCells()) {
+                if (intersectionPercentage(enemyCell1, enemyCell2) > 33) {
+                    if (enemyCell1.getMass() >= enemyCell2.getMass() * 1.33) {
+                        enemyCell1.absorbCell(enemyCell2);
+                        entitiesToRemove.add(enemyCell2);
+                        enemiesToRemove.add(enemy2);
                     }
                 }
             }
-            for (Cell enemyCell : enemy.getEnemyGroup().getCells()) {
-                for (Cell playerCell : playerGroup.getCells()) {
-                    if (enemyCell.getShape().getBoundsInParent().intersects(playerCell.getShape().getBoundsInParent())) {
-                        if(intersectionPercentage(playerCell, enemyCell) > 33) {
-                            if (playerCell.getMass() >= enemyCell.getMass() * 1.33) {
-                                playerCell.absorbCell(enemyCell);
-                                entitiesToRemove.add(enemyCell);
-                                enemiesToRemove.add(enemy);
-                                absorbedSomething = true;
-                                break;
-                            } else if (enemyCell.getMass() >= playerCell.getMass() * 1.33) {
-                                enemyCell.absorbCell(playerCell);
-                                entitiesToRemove.add(playerCell);
-                                absorbedSomething = true;
-                                break;
-                            }
-                        }
-                    }
-                }
-                if(absorbedSomething){
-                    break;
-                }
-                for (GameEntity entity : world.getQuadTree().retrieve(enemy.getEnemyGroup().getCells().get(0), enemy.getEnemyGroup().getCells().get(0).getRadius() * 2 )) {
-                    if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
-                        if (entity instanceof ExplosionPellet){
-                            enemyCell.contactExplosion(entity, root);
-                        }
-                        if (entity instanceof Pellet || entity instanceof Cell) {
-                            System.out.println("Player -> Absorbable Pellet");
-                            enemyCell.absorbPellet(entity);
-                            entitiesToRemove.add(entity);
+        }
+    }
+
+    private void processPlayerEnemyInteractions(PlayerGroup playerGroup, Enemy enemy, List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove) {
+        boolean absorbedSomething = false;
+
+        for (Cell enemyCell : enemy.getEnemyGroup().getCells()) {
+            for (Cell playerCell : playerGroup.getCells()) {
+                if (enemyCell.getShape().getBoundsInParent().intersects(playerCell.getShape().getBoundsInParent())) {
+                    if (intersectionPercentage(playerCell, enemyCell) > 33) {
+                        if (playerCell.getMass() >= enemyCell.getMass() * 1.33) {
+                            playerCell.absorbCell(enemyCell);
+                            entitiesToRemove.add(enemyCell);
+                            enemiesToRemove.add(enemy);
+                            absorbedSomething = true;
+                            break;
+                        } else if (enemyCell.getMass() >= playerCell.getMass() * 1.33) {
+                            enemyCell.absorbCell(playerCell);
+                            entitiesToRemove.add(playerCell);
                             absorbedSomething = true;
                             break;
                         }
                     }
                 }
             }
-
+            if (absorbedSomething) {
+                break;
+            }
+            processEnemyEntityInteractions(enemyCell, entitiesToRemove);
         }
+    }
 
+    private void processEnemyEntityInteractions(Cell enemyCell, List<GameEntity> entitiesToRemove) {
+        List<GameEntity> entities = world.getQuadTree().retrieve(enemyCell, enemyCell.getRadius() * 2);
+        for (GameEntity entity : entities) {
+            if (enemyCell.getShape().getBoundsInParent().intersects(entity.getShape().getBoundsInParent())) {
+                if (entity instanceof ExplosionPellet) {
+                    enemyCell.contactExplosion(entity, root);
+                }
+                if (entity instanceof Pellet || entity instanceof Cell) {
+                    enemyCell.absorbPellet(entity);
+                    entitiesToRemove.add(entity);
+                    break;
+                }
+            }
+        }
+    }
 
-        for(GameEntity entity : newEntities){
-            if(!root.getChildren().contains(entity.getShape())) {
+    private void addNewEntitiesToRoot(List<GameEntity> newEntities) {
+        for (GameEntity entity : newEntities) {
+            if (!root.getChildren().contains(entity.getShape())) {
                 root.getChildren().add(entity.getShape());
             }
         }
+    }
 
+    private void removeEntitiesFromWorld(List<GameEntity> entitiesToRemove, List<Enemy> enemiesToRemove, PlayerGroup playerGroup) {
         for (GameEntity entityToRemove : entitiesToRemove) {
-            if(entityToRemove instanceof Cell){
+            if (entityToRemove instanceof Cell) {
                 root.getChildren().remove(((Cell) entityToRemove).getPseudo());
-                playerGroup.removeComponent((Cell)entityToRemove);
+                playerGroup.removeComponent((Cell) entityToRemove);
                 for (Enemy e : world.getEnemies()) {
                     e.getEnemyGroup().removeComponent((Cell) entityToRemove);
                 }
-            }
-            else {
+            } else {
                 world.getQuadTree().remove(entityToRemove);
                 world.setNbEntities(world.getNbEntities() - 1);
             }
             root.getChildren().remove(entityToRemove.getShape());
         }
 
-        for(Enemy enemyToRemove : enemiesToRemove){
+        for (Enemy enemyToRemove : enemiesToRemove) {
             world.getEnemies().remove(enemyToRemove);
             root.getChildren().remove(enemyToRemove.getShape());
         }
         biggestInFront();
+    }
 
-        if (absorbedSomething) {
-             camera.update();
-        }
+    private void checkGameOver(PlayerGroup playerGroup) {
         if (playerGroup.getCells().isEmpty() && !gameOverAlertShown) {
             gameOverAlertShown = true;
             Platform.runLater(() -> {
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("La partie est terminée !");
-                alert.setHeaderText("Vous avez perdu !");
-                alert.setContentText("Vous avez été mangé par un ennemi !");
-                ButtonType btnPlayAgain = new ButtonType("Rejouer");
-                ButtonType btnLeave = new ButtonType("Quitter");
-                alert.getButtonTypes().setAll(btnPlayAgain, btnLeave);
-                alert.showAndWait().ifPresent(buttonType -> {
-                    if (buttonType == btnPlayAgain) {
-                        Platform.runLater(() -> {
-                            try {
-                                Stage primaryStage = new Stage();
-                                new GameLauncher().start(primaryStage);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
-                        Stage currentStage = (Stage) root.getScene().getWindow();
-                        currentStage.close();
-                    } else if (buttonType == btnLeave) {
-                        System.exit(0);
+                Label gameOverLabel = new Label("Game Over! Vous avez perdu !");
+                gameOverLabel.setFont(new Font("Arial", 30));
+                gameOverLabel.setTextFill(Color.RED);
+                gameOverLabel.setEffect(new DropShadow());
+
+                Button btnPlayAgain = new Button("Rejouer");
+                btnPlayAgain.setOnAction(e -> {
+                    try {
+                        Stage primaryStage = new Stage();
+                        new GameLauncher().start(primaryStage);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
                     }
+                    Stage currentStage = (Stage) mainRoot.getScene().getWindow();
+                    currentStage.close();
                 });
-                alert.showAndWait();
+
+                Button btnLeave = new Button("Quitter");
+                btnLeave.setOnAction(e -> System.exit(0));
+
+                VBox vbox = new VBox(10, gameOverLabel, btnPlayAgain, btnLeave);
+                vbox.setAlignment(Pos.CENTER);
+                vbox.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+                vbox.setPrefSize(720,1080);
+
+                StackPane stackPane = new StackPane(vbox);
+                stackPane.setPrefSize(mainRoot.getWidth(), mainRoot.getHeight());
+
+                mainRoot.getChildren().add(stackPane);
             });
         }
-
-        respawnEntities();
     }
+
+
+
 
     public void respawnEntities(){
         if(world.getNbEnemies() < world.getEnemies().size()){
