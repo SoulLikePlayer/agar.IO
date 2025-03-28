@@ -196,7 +196,6 @@ public class Cell extends GameEntity implements PlayerComponent {
      * @param root
      */
     public void contactExplosion(GameEntity entity, Pane root){
-
         ((ExplosionPellet) entity).ExplosionEffect(this, root);
     }
 

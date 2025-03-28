@@ -30,58 +30,60 @@ public class ScoreBoard extends VBox {
      * Constructor of the ScoreBoard class
      * @param gameWorld The game world to which the ScoreBoard is attached
      */
-    public ScoreBoard(GameWorld gameWorld) {
-        this.gameWorld = gameWorld;
-        this.scores = FXCollections.observableArrayList();
+   public ScoreBoard(GameWorld gameWorld) {
+    this.gameWorld = gameWorld;
+    this.scores = FXCollections.observableArrayList();
 
-        // Titre principal
-        Label title = new Label("ScoreBoard");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+    // Titre principal
+    Label title = new Label("ScoreBoard");
+    title.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
 
-        tableView = new TableView<>();
-        tableView.setPrefWidth(200);
-        tableView.setPrefHeight(300);
-        tableView.setFixedCellSize(25);
-        tableView.setStyle("-fx-background-color: transparent;"); // Fond transparent
+    tableView = new TableView<>();
+    tableView.setPrefWidth(200);
+    tableView.setPrefHeight(300);
+    tableView.setFixedCellSize(25);
+    tableView.setStyle("-fx-background-color: transparent; -fx-text-fill: white;"); // Fond transparent et texte en blanc
 
-        tableView.skinProperty().addListener((obs, oldSkin, newSkin) -> {
-            tableView.lookup(".column-header-background").setStyle("-fx-padding: 0; -fx-background-color: transparent;");
-        });
+    tableView.setMouseTransparent(true);
 
-        this.setBackground(new Background(new BackgroundFill(
-                Color.rgb(50, 50, 50, 0.6),
-                new CornerRadii(10),
-                Insets.EMPTY
-        )));
-        this.setPadding(new Insets(5));
-        this.setSpacing(5);
+    tableView.skinProperty().addListener((obs, oldSkin, newSkin) -> {
+        tableView.lookup(".column-header-background").setStyle("-fx-padding: 0; -fx-background-color: transparent;");
+    });
 
-        TableColumn<PlayerScore, Number> rankColumn = new TableColumn<>();
-        rankColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getRank()));
+    this.setBackground(new Background(new BackgroundFill(
+            Color.rgb(50, 50, 50, 0.6), // Gris foncé avec opacité faible
+            new CornerRadii(10),
+            Insets.EMPTY
+    )));
+    this.setPadding(new Insets(5));
+    this.setSpacing(5);
 
-        TableColumn<PlayerScore, String> nameColumn = new TableColumn<>();
-        nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPseudo()));
+    TableColumn<PlayerScore, Number> rankColumn = new TableColumn<>();
+    rankColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getRank()));
 
-        TableColumn<PlayerScore, Number> massColumn = new TableColumn<>();
-        massColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getMass()));
+    TableColumn<PlayerScore, String> nameColumn = new TableColumn<>();
+    nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getPseudo()));
 
-        rankColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
-        nameColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
-        massColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
+    TableColumn<PlayerScore, Number> massColumn = new TableColumn<>();
+    massColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().getMass()));
 
-        tableView.getColumns().addAll(rankColumn, nameColumn, massColumn);
-        tableView.setItems(scores);
+    rankColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-text-fill: white;");
+    nameColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-text-fill: white;");
+    massColumn.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-text-fill: white;");
 
-        tableView.setPlaceholder(null);
+    tableView.getColumns().addAll(rankColumn, nameColumn, massColumn);
+    tableView.setItems(scores);
 
-        tableView.setRowFactory(tv -> {
-            TableRow<PlayerScore> row = new TableRow<>();
-            row.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
-            return row;
-        });
+    tableView.setPlaceholder(null);
 
-        this.getChildren().addAll(title, tableView);
-    }
+    tableView.setRowFactory(tv -> {
+        TableRow<PlayerScore> row = new TableRow<>();
+        row.setStyle("-fx-background-color: transparent; -fx-text-fill: white;");
+        return row;
+    });
+
+    this.getChildren().addAll(title, tableView);
+}
 
     /**
      * Update the ScoreBoard with the players and enemies scores

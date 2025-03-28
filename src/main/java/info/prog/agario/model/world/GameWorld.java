@@ -21,7 +21,7 @@ public class GameWorld {
     private ArrayList<Enemy> enemies = new ArrayList<>();
     private final NavigableMap<Double, String> pelletProbabilities = new TreeMap<>();
     private static final int NB_ENEMIES = 5;
-    private static final int SIZE = 2000;
+    private static final int SIZE = 4440;
     private static final int NB_PELLETS = 200;
     private int nbEntities = NB_PELLETS;
     private static final int MAP_SIZE = 8000;
