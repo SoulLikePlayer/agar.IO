@@ -6,10 +6,10 @@ import javafx.scene.paint.Color;
 import java.util.UUID;
 
 public class EntityFactory {
-    public static GameEntity createEntity(String type, double x, double y, double param, Color... color) {
+    public static GameEntity createEntity(String type, double x, double y, double param, UUID id, Color... color) {
         switch (type.toLowerCase()) {
             case "pellet":
-                return new Pellet(x, y);
+                return new Pellet(x, y, id);
             case "invisiblepellet":
                 return new InvisiblePellet(x, y);
             case "doublespeedpellet":

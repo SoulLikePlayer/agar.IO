@@ -11,11 +11,13 @@ import javafx.animation.ScaleTransition;
 import javafx.util.Duration;
 import javafx.scene.shape.Circle;
 
+import java.util.UUID;
+
 public abstract class SpecialPellet extends GameEntity {
 
     public SpecialPellet(double x, double y) {
 
-        super(x, y, 10);
+        super(x, y, 10, UUID.randomUUID());
         ScaleTransition st = new ScaleTransition(Duration.seconds(0.5), this.shape);
         st.setByX(0.5); // Augmente la taille
         st.setByY(0.5);

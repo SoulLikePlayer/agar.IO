@@ -108,7 +108,7 @@ public class GameView {
                     }
                 }else{
                     double radius = Double.parseDouble(parts[4]);
-                    GameEntity entity = EntityFactory.createEntity(type, x, y, radius);
+                    GameEntity entity = EntityFactory.createEntity(type, x, y, radius, UUID.fromString(parts[1]));
                     world.addEntity(entity);
                     root.getChildren().add(entity.getShape());
                 }

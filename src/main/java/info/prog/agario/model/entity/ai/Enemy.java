@@ -13,7 +13,7 @@ public class Enemy extends GameEntity {
     private PlayerGroup enemyGroup;
 
     public Enemy(double x, double y, double mass) {
-        super(x, y, 10 * Math.sqrt(mass));
+        super(x, y, 10 * Math.sqrt(mass), UUID.randomUUID());
         this.color = Color.hsb(Math.random() * 360, 0.8, 0.9);
         this.enemyGroup = new PlayerGroup();
         Cell firstCell = new Cell(x, y, mass, this.color, UUID.randomUUID());

@@ -73,7 +73,7 @@ public class Cell extends GameEntity implements PlayerComponent {
     }
 
     public Cell(double x, double y, double mass, Color color, UUID cellID) {
-        super(x, y, 10 * Math.sqrt(mass));
+        super(x, y, 10 * Math.sqrt(mass),cellID);
         this.ID = cellID;
         this.setMass(mass);
         this.color = color;

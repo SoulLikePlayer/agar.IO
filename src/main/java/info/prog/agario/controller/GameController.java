@@ -222,7 +222,7 @@ public class GameController {
     }
 
 
-    private void smallestInFront(){
+    void smallestInFront(){
         List<Cell> cells = new ArrayList<>(world.getPlayer().getPlayerGroup().getCells());
         cells.sort(Comparator.comparing(Cell::getMass).reversed());
         for (Cell cell : cells) {

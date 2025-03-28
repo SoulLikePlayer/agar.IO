@@ -71,7 +71,7 @@ public class GameWorld {
         for (int i = 0; i < count; i++) {
             int rank = random.nextInt(100);
             String type = pelletProbabilities.ceilingEntry(rank).getValue();
-            GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * 2000, random.nextDouble() * 2000, 0);
+            GameEntity pellet = EntityFactory.createEntity(type, random.nextDouble() * 2000, random.nextDouble() * 2000, 0, UUID.randomUUID());
             entities.add(pellet);
             quadTree.insert(pellet);
         }
